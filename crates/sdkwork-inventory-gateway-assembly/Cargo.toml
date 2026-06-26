@@ -14,3 +14,4 @@ axum.workspace = true
 tokio = { version = "1.48", features = ["macros", "rt-multi-thread"] }
 sdkwork_routes_inventory_app_api = { package = "sdkwork-routes-inventory-app-api", path = "../sdkwork-routes-inventory-app-api" }
 sdkwork_routes_inventory_backend_api = { package = "sdkwork-routes-inventory-backend-api", path = "../sdkwork-routes-inventory-backend-api" }
+sdkwork_inventory_service_host = { package = "sdkwork-inventory-service-host", path = "../sdkwork-inventory-service-host" }

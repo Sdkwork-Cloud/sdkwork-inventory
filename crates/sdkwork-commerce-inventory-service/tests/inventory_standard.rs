@@ -9,7 +9,7 @@ use sdkwork_commerce_inventory_service::{
 #[test]
 fn validates_stock_quantities_with_available_reserved_and_sold_buckets() {
     let stock = InventoryStockDraft::new(
-        "tenant-1",
+        "100001",
         "sku-physical-standard",
         Some("warehouse-shanghai"),
         100,
@@ -23,13 +23,13 @@ fn validates_stock_quantities_with_available_reserved_and_sold_buckets() {
     assert_eq!(stock.reserved_quantity, 10);
     assert_eq!(stock.sold_quantity, 5);
     assert_eq!(stock.version, 7);
-    assert!(InventoryStockDraft::new("tenant-1", "sku-1", None, -1, 0, 0, 0).is_err());
+    assert!(InventoryStockDraft::new("100001", "sku-1", None, -1, 0, 0, 0).is_err());
 }
 
 #[test]
 fn validates_inventory_reservations_for_order_prehold_flow() {
     let reservation = InventoryReservationDraft::new(
-        "tenant-1",
+        "100001",
         "reservation-1",
         "order-1",
         "sku-physical-standard",
@@ -55,7 +55,7 @@ fn validates_inventory_reservations_for_order_prehold_flow() {
         "released"
     );
     assert!(InventoryReservationDraft::new(
-        "tenant-1",
+        "100001",
         "reservation-1",
         "order-1",
         "sku-physical-standard",
@@ -106,7 +106,7 @@ fn validates_reservation_transitions_and_deduction_policy() {
 #[test]
 fn validates_inventory_movement_ledger_shape() {
     let movement = InventoryMovementDraft::new(
-        "tenant-1",
+        "100001",
         "move-1",
         "sku-physical-standard",
         Some("warehouse-shanghai"),
@@ -122,7 +122,7 @@ fn validates_inventory_movement_ledger_shape() {
     assert_eq!(InventoryMovementType::Consume.as_storage_str(), "consume");
     assert_eq!(InventoryMovementType::Adjust.as_storage_str(), "adjust");
     assert!(InventoryMovementDraft::new(
-        "tenant-1",
+        "100001",
         "move-1",
         "sku-physical-standard",
         None,
