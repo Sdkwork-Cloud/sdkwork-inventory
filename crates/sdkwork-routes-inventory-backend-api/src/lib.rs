@@ -27,3 +27,7 @@ pub async fn build_inventory_backend_router_with_framework(
 ) -> Router {
     build_inventory_backend_router(host)
 }
+
+pub async fn gateway_mount(host: Arc<InventoryServiceHost>,) -> Router {
+    build_inventory_backend_router_with_framework(host).await
+}

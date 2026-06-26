@@ -1,0 +1,30 @@
+{
+  "kind": "sdkwork.gateway.assembly",
+  "schemaVersion": 1,
+  "applicationCode": "inventory",
+  "packageName": "sdkwork-inventory-gateway-assembly",
+  "crateDir": "crates/sdkwork-inventory-gateway-assembly",
+  "generatedAt": "2026-06-25T13:08:05.552Z",
+  "routeCrates": [
+    {
+      "packageName": "sdkwork-routes-inventory-app-api",
+      "memberDir": "crates/sdkwork-routes-inventory-app-api",
+      "libName": "sdkwork_routes_inventory_app_api",
+      "surface": "app-api",
+      "pathPrefix": null,
+      "mountOrder": 0,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": false
+    },
+    {
+      "packageName": "sdkwork-routes-inventory-backend-api",
+      "memberDir": "crates/sdkwork-routes-inventory-backend-api",
+      "libName": "sdkwork_routes_inventory_backend_api",
+      "surface": "backend-api",
+      "pathPrefix": null,
+      "mountOrder": 1,
+      "hasGatewayMount": true,
+      "hasGatewayRouteManifest": false
+    }
+  ]
+}

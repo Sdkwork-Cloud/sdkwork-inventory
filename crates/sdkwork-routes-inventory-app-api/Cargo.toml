@@ -1,5 +1,5 @@
 [package]
-name = "sdkwork-router-inventory-app-api"
+name = "sdkwork-routes-inventory-app-api"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -21,4 +21,5 @@ sdkwork_database_sqlx.workspace = true
 sdkwork_iam_context_service.workspace = true
 sdkwork-web-core.workspace = true
 sdkwork-web-axum.workspace = true
+sdkwork-web-bootstrap.workspace = true
 sdkwork-iam-web-adapter.workspace = true
