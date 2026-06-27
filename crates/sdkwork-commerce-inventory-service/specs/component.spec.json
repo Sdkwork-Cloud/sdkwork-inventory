@@ -6,10 +6,10 @@
     "displayName": "SDKWork Commerce Inventory",
     "version": "0.1.0",
     "type": "rust-crate",
-    "root": "sdkwork-commerce/crates/sdkwork-commerce-inventory-service",
+    "root": "crates/sdkwork-commerce-inventory-service",
     "domain": "commerce",
     "declaredDomain": null,
-    "capability": "commerce",
+    "capability": "inventory",
     "status": "stable",
     "languages": [
       "rust"

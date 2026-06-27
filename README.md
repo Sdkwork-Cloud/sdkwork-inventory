@@ -6,7 +6,7 @@ SDKWork commerce **inventory** capability building-block repository (domain `com
 - Composition consumer: `../sdkwork-clawrouter/vendor/sdkwork-commerce` (archived transitional platform snapshot)
 - Domain service: `crates/sdkwork-commerce-inventory-service/`
 - Repository SQL: `crates/sdkwork-commerce-inventory-repository-sqlx/`
-- HTTP API server: `crates/sdkwork-inventory-api-server/`
+- HTTP API server: `crates/sdkwork-inventory-standalone-gateway/`
 
 ## Quick start
 
