@@ -1,5 +1,5 @@
 [package]
-name = "sdkwork-commerce-inventory-repository-sqlx"
+name = "sdkwork-inventory-repository-sqlx"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -11,6 +11,6 @@ path = "src/lib.rs"
 [dependencies]
 serde = { workspace = true }
 serde_json = { workspace = true }
-sdkwork_commerce_contract_service.workspace = true
-sdkwork_commerce_inventory_service.workspace = true
+sdkwork_contract_service.workspace = true
+sdkwork_inventory_service.workspace = true
 sqlx = { workspace = true }

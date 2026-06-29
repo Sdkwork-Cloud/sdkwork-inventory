@@ -3,8 +3,8 @@ use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::routing::{get, post};
 use axum::{Json, Router};
-use sdkwork_commerce_contract_service::CommerceServiceError;
-use sdkwork_commerce_inventory_repository_sqlx::{
+use sdkwork_contract_service::CommerceServiceError;
+use sdkwork_inventory_repository_sqlx::{
     MerchantInventoryScopeQuery, PostgresCommerceInventoryStore, SqliteCommerceInventoryStore,
 };
 use sdkwork_iam_context_service::IamAppContext;

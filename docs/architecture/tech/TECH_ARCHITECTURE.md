@@ -11,7 +11,7 @@ Specs: ARCHITECTURE_DECISION_SPEC.md, RUST_CODE_SPEC.md, API_SPEC.md, WEB_FRAMEW
 
 ## 1. Architecture Overview
 
-`sdkwork-inventory` is a **T1 capability repository** in the commerce domain. It owns domain services, SQL repositories, HTTP route builders, and a standalone gateway with IAM middleware. The `sdkwork-commerce` monolith has been dissolved; each T1 capability repository is self-contained.
+`sdkwork-inventory` is a **T1 capability repository** in the commerce domain. It owns domain services, SQL repositories, HTTP route builders, and a standalone gateway with IAM middleware. The `sdkwork-commerce (deleted)` monolith has been dissolved; each T1 capability repository is self-contained.
 
 ```text
 T1 inventory crate  →  build_*_router()     (no IAM)
@@ -31,8 +31,8 @@ Migration status: **complete**.
 
 | Layer | Owner | Notes |
 | --- | --- | --- |
-| Domain commands/queries | `sdkwork-commerce-inventory-service` | Business validation and ports |
-| SQL repositories | `sdkwork-commerce-inventory-repository-sqlx` | Tenant-scoped persistence |
+| Domain commands/queries | `sdkwork-inventory-service` | Business validation and ports |
+| SQL repositories | `sdkwork-commerce (deleted)-inventory-repository-sqlx` | Tenant-scoped persistence |
 | HTTP route builders | sdkwork-routes-inventory-app-api, sdkwork-routes-inventory-backend-api | `build_*_router` exports without IAM |
 | IAM / gateway composition | `sdkwork-inventory-standalone-gateway` | IAM middleware at T1 standalone-gateway |
 | OpenAPI / SDK authority | `sdkwork-inventory/sdks/` | Per-T1 SDK families |
@@ -41,8 +41,8 @@ Migration status: **complete**.
 
 Standard 7-crate capability workspace:
 
-- `crates/sdkwork-commerce-inventory-service/`
-- `crates/sdkwork-commerce-inventory-repository-sqlx/`
+- `crates/sdkwork-inventory-service/`
+- `crates/sdkwork-commerce (deleted)-inventory-repository-sqlx/`
 - `crates/sdkwork-routes-inventory-app-api/`
 - `crates/sdkwork-routes-inventory-backend-api/`
 - `crates/sdkwork-inventory-database-host/`

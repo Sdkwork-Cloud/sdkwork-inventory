@@ -1,5 +1,5 @@
-use sdkwork_commerce_contract_service::CommerceServiceError;
-use sdkwork_commerce_inventory_service::{
+use sdkwork_contract_service::CommerceServiceError;
+use sdkwork_inventory_service::{
     inventory_service_contract, InventoryDeductionPolicy, InventoryMovementDraft,
     InventoryMovementType, InventoryPortRequirement, InventoryRepositoryCommand,
     InventoryReservationDraft, InventoryReservationStatus, InventoryReservationTransition,
