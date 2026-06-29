@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.database.table-registry",
+  "tables": [
+    {
+      "name": "commerce_inventory_stock",
+      "owner": "sdkwork-commerce-platform",
+      "profile": "tenant_entity",
+      "complianceLevel": "L2",
+      "engine": ["postgres", "sqlite"],
+      "migration": "commerce-initial",
+      "referenceOnly": true
+    },
+    {
+      "name": "commerce_inventory_reservation",
+      "owner": "sdkwork-commerce-platform",
+      "profile": "tenant_entity+event_log",
+      "complianceLevel": "L2",
+      "engine": ["postgres", "sqlite"],
+      "migration": "commerce-initial",
+      "referenceOnly": true
+    },
+    {
+      "name": "commerce_inventory_movement",
+      "owner": "sdkwork-commerce-platform",
+      "profile": "event_log",
+      "complianceLevel": "L2",
+      "engine": ["postgres", "sqlite"],
+      "migration": "commerce-initial",
+      "referenceOnly": true
+    }
+  ]
+}
