@@ -1,4 +1,5 @@
 # sdkwork-inventory
+repository-kind: application
 
 SDKWork commerce **inventory** capability building-block repository (domain `commerce`).
 
