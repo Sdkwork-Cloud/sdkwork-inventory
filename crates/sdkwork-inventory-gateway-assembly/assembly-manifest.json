@@ -4,7 +4,7 @@
   "applicationCode": "inventory",
   "packageName": "sdkwork-inventory-gateway-assembly",
   "crateDir": "crates/sdkwork-inventory-gateway-assembly",
-  "generatedAt": "2026-06-25T13:08:05.552Z",
+  "generatedAt": "2026-07-08T01:34:12.490Z",
   "routeCrates": [
     {
       "packageName": "sdkwork-routes-inventory-app-api",
