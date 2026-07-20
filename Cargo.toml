@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+    "crates/sdkwork-api-inventory-assembly",
     "crates/sdkwork-inventory-gateway-assembly",
   "crates/sdkwork-inventory-service",
   "crates/sdkwork-inventory-repository-sqlx",

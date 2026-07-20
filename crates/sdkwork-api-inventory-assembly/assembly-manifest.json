@@ -1,0 +1,32 @@
+{
+  "kind": "sdkwork.api.assembly",
+  "schemaVersion": 1,
+  "applicationCode": "inventory",
+  "apiMode": "served",
+  "packageName": "sdkwork-api-inventory-assembly",
+  "crateDir": "crates/sdkwork-api-inventory-assembly",
+  "routeCrates": [
+    {
+      "packageName": "sdkwork-routes-inventory-app-api",
+      "memberDir": "crates/sdkwork-routes-inventory-app-api",
+      "libName": "sdkwork_routes_inventory_app_api",
+      "surface": "app-api",
+      "pathPrefix": null,
+      "mountOrder": 0,
+      "componentRef": "crates/sdkwork-routes-inventory-app-api/specs/component.spec.json",
+      "routeManifestRef": "crates/sdkwork-routes-inventory-app-api/sdks/_route-manifests/app-api/sdkwork-routes-inventory-app-api.route-manifest.json",
+      "sourceRef": "crates/sdkwork-routes-inventory-app-api/Cargo.toml"
+    },
+    {
+      "packageName": "sdkwork-routes-inventory-backend-api",
+      "memberDir": "crates/sdkwork-routes-inventory-backend-api",
+      "libName": "sdkwork_routes_inventory_backend_api",
+      "surface": "backend-api",
+      "pathPrefix": null,
+      "mountOrder": 1,
+      "componentRef": "crates/sdkwork-routes-inventory-backend-api/specs/component.spec.json",
+      "routeManifestRef": "crates/sdkwork-routes-inventory-backend-api/sdks/_route-manifests/backend-api/sdkwork-routes-inventory-backend-api.route-manifest.json",
+      "sourceRef": "crates/sdkwork-routes-inventory-backend-api/Cargo.toml"
+    }
+  ]
+}
