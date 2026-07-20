@@ -34,7 +34,7 @@ Migration status: **complete**.
 | Domain commands/queries | `sdkwork-inventory-service` | Business validation and ports |
 | SQL repositories | `sdkwork-commerce (deleted)-inventory-repository-sqlx` | Tenant-scoped persistence |
 | HTTP route builders | sdkwork-routes-inventory-app-api, sdkwork-routes-inventory-backend-api | `build_*_router` exports without IAM |
-| IAM / gateway composition | `sdkwork-inventory-standalone-gateway` | IAM middleware at T1 standalone-gateway |
+| IAM / gateway composition | `sdkwork-api-inventory-standalone-gateway` | IAM middleware at T1 standalone-gateway |
 | OpenAPI / SDK authority | `sdkwork-inventory/sdks/` | Per-T1 SDK families |
 
 ## 4. Directory And Package Layout
@@ -47,7 +47,7 @@ Standard 7-crate capability workspace:
 - `crates/sdkwork-routes-inventory-backend-api/`
 - `crates/sdkwork-inventory-database-host/`
 - `crates/sdkwork-inventory-service-host/`
-- `crates/sdkwork-inventory-standalone-gateway/`
+- `crates/sdkwork-api-inventory-standalone-gateway/`
 
 No PC application root in this repository yet.
 
@@ -68,7 +68,7 @@ No PC application root in this repository yet.
 ## 7. Deployment And Runtime Topology
 
 - Local development: `cargo test --workspace` in this repository.
-- Independent deployment via `sdkwork-inventory-standalone-gateway`; production gateway routing is owned by deployment/app topology specs.
+- Independent deployment via `sdkwork-api-inventory-standalone-gateway`; production gateway routing is owned by deployment/app topology specs.
 
 ## 8. Architecture Decision Index
 

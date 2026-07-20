@@ -12,5 +12,6 @@ path = "src/lib.rs"
 [dependencies]
 axum.workspace = true
 tokio.workspace = true
+sdkwork_inventory_service_host = { package = "sdkwork-inventory-service-host", path = "../sdkwork-inventory-service-host" }
 sdkwork-routes-inventory-app-api = { path = "../sdkwork-routes-inventory-app-api" }
 sdkwork-routes-inventory-backend-api = { path = "../sdkwork-routes-inventory-backend-api" }
