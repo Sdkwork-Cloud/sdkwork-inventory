@@ -4,21 +4,22 @@ use axum::response::{IntoResponse, Response};
 use axum::routing::{get, patch};
 use axum::{Json, Router};
 use sdkwork_contract_service::CommerceServiceError;
+use sdkwork_iam_context_service::IamAppContext;
 use sdkwork_inventory_repository_sqlx::{
     BackendInventoryListPage, BackendInventoryMovementListQuery,
     BackendInventoryReservationListQuery, BackendInventoryStockListQuery,
     PostgresCommerceInventoryStore, SqliteCommerceInventoryStore,
     UpdateBackendInventoryStockCommand,
 };
-use sdkwork_iam_context_service::IamAppContext;
 use serde::{Deserialize, Serialize};
 use sqlx::{PgPool, SqlitePool};
 use std::sync::Arc;
 
 use crate::subject::app_runtime_subject_from_extension;
 
-pub type CommerceBackendInventoryFuture<'a, T> =
-    std::pin::Pin<Box<dyn std::future::Future<Output = Result<T, CommerceServiceError>> + Send + 'a>>;
+pub type CommerceBackendInventoryFuture<'a, T> = std::pin::Pin<
+    Box<dyn std::future::Future<Output = Result<T, CommerceServiceError>> + Send + 'a>,
+>;
 
 pub trait CommerceBackendInventoryStore: Send + Sync {
     fn list_stocks<'a>(
@@ -309,22 +310,34 @@ fn inventory_error_response(context: &str, error: CommerceServiceError) -> Respo
     match error.code() {
         "validation" => (
             StatusCode::BAD_REQUEST,
-            Json(BackendInventoryApiResult::<()>::error("4001", error.message())),
+            Json(BackendInventoryApiResult::<()>::error(
+                "4001",
+                error.message(),
+            )),
         )
             .into_response(),
         "not_found" => (
             StatusCode::NOT_FOUND,
-            Json(BackendInventoryApiResult::<()>::error("4040", error.message())),
+            Json(BackendInventoryApiResult::<()>::error(
+                "4040",
+                error.message(),
+            )),
         )
             .into_response(),
         "conflict" => (
             StatusCode::CONFLICT,
-            Json(BackendInventoryApiResult::<()>::error("4090", error.message())),
+            Json(BackendInventoryApiResult::<()>::error(
+                "4090",
+                error.message(),
+            )),
         )
             .into_response(),
         _ => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(BackendInventoryApiResult::<()>::error("5000", error.message())),
+            Json(BackendInventoryApiResult::<()>::error(
+                "5000",
+                error.message(),
+            )),
         )
             .into_response(),
     }

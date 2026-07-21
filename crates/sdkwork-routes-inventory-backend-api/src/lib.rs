@@ -16,9 +16,7 @@ pub fn build_inventory_backend_router(host: Arc<InventoryServiceHost>) -> Router
         DatabasePool::Postgres(pool, _) => {
             backend_inventory_router_with_postgres_pool(pool.clone())
         }
-        DatabasePool::Sqlite(pool, _) => {
-            backend_inventory_router_with_sqlite_pool(pool.clone())
-        }
+        DatabasePool::Sqlite(pool, _) => backend_inventory_router_with_sqlite_pool(pool.clone()),
     }
 }
 
@@ -28,6 +26,6 @@ pub async fn build_inventory_backend_router_with_framework(
     build_inventory_backend_router(host)
 }
 
-pub async fn gateway_mount(host: Arc<InventoryServiceHost>,) -> Router {
+pub async fn gateway_mount(host: Arc<InventoryServiceHost>) -> Router {
     build_inventory_backend_router_with_framework(host).await
 }

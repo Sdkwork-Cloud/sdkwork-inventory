@@ -4,18 +4,19 @@ use axum::response::{IntoResponse, Response};
 use axum::routing::{get, post};
 use axum::{Json, Router};
 use sdkwork_contract_service::CommerceServiceError;
+use sdkwork_iam_context_service::IamAppContext;
 use sdkwork_inventory_repository_sqlx::{
     MerchantInventoryScopeQuery, PostgresCommerceInventoryStore, SqliteCommerceInventoryStore,
 };
-use sdkwork_iam_context_service::IamAppContext;
 use serde::Serialize;
 use sqlx::{PgPool, SqlitePool};
 use std::sync::Arc;
 
 use crate::subject::app_runtime_subject_from_extension;
 
-pub type CommerceMerchantInventoryFuture<'a, T> =
-    std::pin::Pin<Box<dyn std::future::Future<Output = Result<T, CommerceServiceError>> + Send + 'a>>;
+pub type CommerceMerchantInventoryFuture<'a, T> = std::pin::Pin<
+    Box<dyn std::future::Future<Output = Result<T, CommerceServiceError>> + Send + 'a>,
+>;
 
 pub trait CommerceMerchantInventoryStore: Send + Sync {
     fn list_merchant_stocks<'a>(
@@ -78,7 +79,9 @@ pub fn app_merchant_inventory_router_with_postgres_pool(pool: PgPool) -> Router 
     build_app_merchant_inventory_router(Arc::new(PostgresCommerceInventoryStore::new(pool)))
 }
 
-pub fn build_app_merchant_inventory_router(store: Arc<dyn CommerceMerchantInventoryStore>) -> Router {
+pub fn build_app_merchant_inventory_router(
+    store: Arc<dyn CommerceMerchantInventoryStore>,
+) -> Router {
     Router::new()
         .route(
             "/app/v3/api/shops/current/inventory/stocks",
@@ -140,11 +143,8 @@ async fn merchant_scope(
         Ok(subject) => subject,
         Err(message) => return Err(unauthorized_response(message)),
     };
-    MerchantInventoryScopeQuery::new(
-        &subject.tenant_id,
-        subject.organization_id.as_deref(),
-    )
-    .map_err(|error| validation_response(error.message()))
+    MerchantInventoryScopeQuery::new(&subject.tenant_id, subject.organization_id.as_deref())
+        .map_err(|error| validation_response(error.message()))
 }
 
 async fn list_current_inventory_stocks(
@@ -158,8 +158,10 @@ async fn list_current_inventory_stocks(
     match state.store.list_merchant_stocks(scope).await {
         Ok(items) => {
             let total = items.len() as u64;
-            Json(MerchantInventoryApiResult::success(list_data(items, 1, 20, total)))
-                .into_response()
+            Json(MerchantInventoryApiResult::success(list_data(
+                items, 1, 20, total,
+            )))
+            .into_response()
         }
         Err(error) => inventory_error_response("merchant inventory stocks list failed", error),
     }

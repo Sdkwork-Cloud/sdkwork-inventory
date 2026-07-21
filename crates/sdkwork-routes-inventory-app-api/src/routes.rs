@@ -3,10 +3,11 @@ use sdkwork_database_sqlx::DatabasePool;
 use sdkwork_inventory_service_host::InventoryServiceHost;
 use std::sync::Arc;
 
-use crate::{
-    app_merchant_inventory_router_with_postgres_pool, app_merchant_inventory_router_with_sqlite_pool,
-};
 use crate::web_bootstrap::wrap_router_with_web_framework_from_env;
+use crate::{
+    app_merchant_inventory_router_with_postgres_pool,
+    app_merchant_inventory_router_with_sqlite_pool,
+};
 
 pub fn build_inventory_app_router(host: Arc<InventoryServiceHost>) -> Router {
     match host.database_pool() {

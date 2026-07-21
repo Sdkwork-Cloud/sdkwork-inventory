@@ -5,7 +5,6 @@ use sdkwork_iam_context_service::IamAppContext;
 pub(crate) struct AppRuntimeSubject {
     pub tenant_id: String,
     pub organization_id: Option<String>,
-    pub user_id: String,
 }
 
 pub(crate) fn app_runtime_subject_from_extension(
@@ -15,7 +14,7 @@ pub(crate) fn app_runtime_subject_from_extension(
         return Err("authenticated runtime context is required".to_owned());
     };
     let tenant_id = required_context_text(&context.tenant_id, "tenant_id")?;
-    let user_id = required_context_text(&context.user_id, "user_id")?;
+    required_context_text(&context.user_id, "user_id")?;
     let organization_id = context
         .organization_id
         .as_deref()
@@ -26,7 +25,6 @@ pub(crate) fn app_runtime_subject_from_extension(
     Ok(AppRuntimeSubject {
         tenant_id,
         organization_id,
-        user_id,
     })
 }
 
