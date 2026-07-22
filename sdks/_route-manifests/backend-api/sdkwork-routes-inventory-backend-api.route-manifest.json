@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.route.manifest",
+  "packageName": "sdkwork-routes-inventory-backend-api",
+  "surface": "backend-api",
+  "owner": "sdkwork-inventory",
+  "domain": "commerce",
+  "capability": "inventory",
+  "apiAuthority": "sdkwork-inventory-backend-api",
+  "sdkFamily": "sdkwork-inventory-backend-sdk",
+  "prefix": "/backend/v3/api",
+  "source": {
+    "crateRoot": "crates/sdkwork-routes-inventory-backend-api",
+    "crateImport": "sdkwork_routes_inventory_backend_api"
+  },
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/backend/v3/api/inventory/stocks",
+      "operationId": "inventory.stocks.list",
+      "tags": [
+        "inventory"
+      ],
+      "auth": {
+        "mode": "dual-token",
+        "required": true,
+        "permission": "commerce.inventory.read"
+      },
+      "ownership": {
+        "owner": "sdkwork-inventory",
+        "apiAuthority": "sdkwork-inventory-backend-api"
+      },
+      "source": {
+        "file": "sdkwork-routes-inventory-backend-api:/backend/v3/api/inventory/stocks"
+      },
+      "requestContext": "WebRequestContext",
+      "apiSurface": "backend-api"
+    },
+    {
+      "method": "PATCH",
+      "path": "/backend/v3/api/inventory/stocks/{stockId}",
+      "operationId": "inventory.stocks.update",
+      "tags": [
+        "inventory"
+      ],
+      "auth": {
+        "mode": "dual-token",
+        "required": true,
+        "permission": "commerce.inventory.manage"
+      },
+      "ownership": {
+        "owner": "sdkwork-inventory",
+        "apiAuthority": "sdkwork-inventory-backend-api"
+      },
+      "source": {
+        "file": "sdkwork-routes-inventory-backend-api:/backend/v3/api/inventory/stocks/{stockId}"
+      },
+      "requestContext": "WebRequestContext",
+      "apiSurface": "backend-api"
+    },
+    {
+      "method": "GET",
+      "path": "/backend/v3/api/inventory/reservations",
+      "operationId": "inventory.reservations.list",
+      "tags": [
+        "inventory"
+      ],
+      "auth": {
+        "mode": "dual-token",
+        "required": true,
+        "permission": "commerce.inventory.read"
+      },
+      "ownership": {
+        "owner": "sdkwork-inventory",
+        "apiAuthority": "sdkwork-inventory-backend-api"
+      },
+      "source": {
+        "file": "sdkwork-routes-inventory-backend-api:/backend/v3/api/inventory/reservations"
+      },
+      "requestContext": "WebRequestContext",
+      "apiSurface": "backend-api"
+    },
+    {
+      "method": "GET",
+      "path": "/backend/v3/api/inventory/movements",
+      "operationId": "inventory.movements.list",
+      "tags": [
+        "inventory"
+      ],
+      "auth": {
+        "mode": "dual-token",
+        "required": true,
+        "permission": "commerce.inventory.read"
+      },
+      "ownership": {
+        "owner": "sdkwork-inventory",
+        "apiAuthority": "sdkwork-inventory-backend-api"
+      },
+      "source": {
+        "file": "sdkwork-routes-inventory-backend-api:/backend/v3/api/inventory/movements"
+      },
+      "requestContext": "WebRequestContext",
+      "apiSurface": "backend-api"
+    }
+  ]
+}

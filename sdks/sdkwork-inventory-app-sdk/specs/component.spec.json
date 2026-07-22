@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-inventory-app-sdk",
+    "displayName": "SDKWork Inventory App SDK",
+    "version": "0.1.0",
+    "type": "sdk-family",
+    "root": "sdks/sdkwork-inventory-app-sdk",
+    "domain": "commerce",
+    "capability": "inventory-app-sdk",
+    "surface": "app-api",
+    "status": "standardized",
+    "languages": ["typescript"],
+    "generated": true,
+    "private": false,
+    "manifests": ["sdk-manifest.json"]
+  },
+  "canonicalSpecs": [
+    { "file": "SDK_SPEC.md", "path": "../../../sdkwork-specs/SDK_SPEC.md", "purpose": "SDK family and consumer contract." },
+    { "file": "SDK_WORKSPACE_GENERATION_SPEC.md", "path": "../../../sdkwork-specs/SDK_WORKSPACE_GENERATION_SPEC.md", "purpose": "Generator-first workspace layout." },
+    { "file": "API_SPEC.md", "path": "../../../sdkwork-specs/API_SPEC.md", "purpose": "API authority and wire contract." },
+    { "file": "TEST_SPEC.md", "path": "../../../sdkwork-specs/TEST_SPEC.md", "purpose": "Generation and contract verification." }
+  ],
+  "sdk": {
+    "family": "sdkwork-inventory-app-sdk",
+    "authority": "sdkwork-inventory-app-api",
+    "sdkOwner": "sdkwork-inventory",
+    "apiPrefix": "/app/v3/api",
+    "packageName": "@sdkwork/inventory-app-sdk",
+    "sdkName": "sdkwork-inventory-app-sdk",
+    "sdkType": "app",
+    "sdkSurface": "app",
+    "generatedOutput": "sdkwork-inventory-app-sdk-typescript/generated/server-openapi",
+    "standardProfile": "sdkwork-v3"
+  },
+  "contracts": {
+    "apiAuthority": { "name": "sdkwork-inventory-app-api", "owner": "sdkwork-inventory", "prefix": "/app/v3/api", "authorityOpenApi": "openapi/sdkwork-inventory-app-api.openapi.json", "derivedOpenApi": ["openapi/sdkwork-inventory-app-api.sdkgen.json"], "standard": "../../../sdkwork-specs/SDK_SPEC.md" },
+    "publicExports": [], "runtimeEntrypoints": ["sdk-manifest.json"], "routeManifest": null,
+    "sdkDependencies": [], "dependencyApiExports": [], "dependencyApiSurfaces": [],
+    "sdkClients": ["SdkworkAppClient"], "events": [], "configKeys": ["sdk-manifest.json"]
+  },
+  "verification": { "commands": ["node ../sdkwork-specs/tools/check-sdk-standard.mjs --workspace ."] }
+}

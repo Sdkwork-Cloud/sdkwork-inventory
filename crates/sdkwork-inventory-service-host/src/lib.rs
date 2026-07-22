@@ -1,5 +1,7 @@
 use sdkwork_database_sqlx::DatabasePool;
-use sdkwork_inventory_database_host::{bootstrap_inventory_database_from_env, InventoryDatabaseHost};
+use sdkwork_inventory_database_host::{
+    bootstrap_inventory_database_from_env, InventoryDatabaseHost,
+};
 
 pub struct InventoryServiceHost {
     database: InventoryDatabaseHost,
@@ -7,7 +9,9 @@ pub struct InventoryServiceHost {
 
 impl InventoryServiceHost {
     pub async fn new() -> Self {
-        Self::from_env().await.expect("inventory service host bootstrap failed")
+        Self::from_env()
+            .await
+            .expect("inventory service host bootstrap failed")
     }
 
     pub async fn from_env() -> Result<Self, String> {

@@ -3,69 +3,63 @@
 Status: active
 Owner: SDKWork maintainers
 Application: inventory
-Updated: 2026-06-24
+Updated: 2026-07-22
 Specs: REQUIREMENTS_SPEC.md, DOCUMENTATION_SPEC.md
-
-## Document Map
-
-- Commerce repository dissolution: `../sdkwork-specs/MIGRATION_SPEC.md` §8
 
 ## 1. Background And Problem
 
-Stock levels, reservations, and inventory adjustments require an isolated capability with clear tenant boundaries and auditable mutations.
-
-This repository is a **T1 commerce capability building block**. The `sdkwork-commerce (deleted)` monolith has been dissolved; this repository is self-contained with its own domain logic, persistence, HTTP route builders, API server, and IAM middleware for the **inventory** capability.
+Merchants and fulfillment services need an authoritative, tenant-isolated view of stock,
+reservations, and inventory movements. Inventory mutations must be auditable and must not depend on
+catalog or order storage internals.
 
 ## 2. Target Users
 
-Warehouse operators, merchant admins, and order fulfillment integrators.
+Merchant operators, warehouse operators, fulfillment services, and platform administrators.
 
 ## 3. Goals And Non-Goals
 
-### Goals
+Goals:
 
-- Own inventory domain service, repository SQL, backend admin HTTP, and merchant app inventory routes.
-- Expose merchant stock list/adjustment at `/app/v3/api/shops/current/inventory/*` from inventory app router.
+- Own stock, reservation, adjustment, and movement behavior for the inventory capability.
+- Serve merchant-facing and administrator-facing workflows through separate API surfaces.
+- Provide generated, typed SDK families for every active HTTP surface.
+- Enforce tenant identity, permission checks, bounded pagination, and idempotent writes.
 
-### Non-Goals
+Non-goals:
 
-- Order payment or catalog master ownership.
+- Catalog product ownership, order orchestration, payment capture, or UI ownership.
 
 ## 4. Scope
 
-- Inventory service domain.
-- Backend inventory SQL + HTTP (stocks, reservations, movements list/update).
-- Merchant app inventory SQL + HTTP (current shop stock list and adjustments).
-
-Primary API prefixes:
-
-- App: `/app/v3/api/shops/current/inventory`
-- Backend: `/backend/v3/api/inventory`
-
-Migration status: **complete**.
+The active product scope includes merchant stock listing and adjustment plus backend stock,
+reservation, and movement administration. Open/domain API publication is not currently part of the
+inventory capability.
 
 ## 5. User Scenarios
 
-- Fulfillment reserves stock when an order moves to allocated status.
-- A merchant operator lists current shop stock and posts quantity adjustments.
-- An admin operator adjusts on-hand quantity from backend inventory routes.
+- A merchant reviews a bounded page of stock and records an adjustment.
+- A fulfillment flow reserves or releases quantity against an inventory item.
+- An administrator reviews inventory movements without downloading the full data set.
 
 ## 6. Success Metrics
 
-- Backend and merchant inventory routes return real data instead of manifest 501 stubs.
-- Repository crate is the sole inventory SQL owner (shop repo no longer queries inventory tables).
+- Every active route is represented exactly once in its owner route manifest and SDK family.
+- List operations remain bounded at the repository layer and report accurate totals.
+- Unauthorized or cross-tenant access fails closed with standard problem responses.
+- API/SDK generation is deterministic and idempotent.
 
 ## 7. Phases
 
-- Phase 1 (complete): domain service moved to sibling repo.
-- Phase 2 (complete): backend + merchant app SQL/HTTP in sibling repo.
+- Active: app and backend API/SDK surfaces are implemented and composed by the reusable assembly.
+- Next: production release evidence, load targets, and operational SLOs are recorded before launch.
 
 ## 8. Linked Requirements
 
-- Commerce repository dissolution: `../sdkwork-specs/MIGRATION_SPEC.md` §8
-- Component contract: `specs/component.spec.json` (when present)
-- Machine contracts: local `specs/`, future `apis/`, and generated `sdks/`
+- Machine contracts: repository `specs/`, module `specs/component.spec.json`, `apis/`, and
+  `sdks/*/sdk-manifest.json`.
+- Standards: `../sdkwork-specs/API_SPEC.md`, `SDK_SPEC.md`, `PAGINATION_SPEC.md`, and
+  `SECURITY_SPEC.md`.
 
 ## 9. Open Questions
 
-- Whether merchant inventory routes should move from `/shops/current/inventory/*` to `/inventory/*` before production launch.
+- Production stock-volume and latency targets require business capacity forecasts.

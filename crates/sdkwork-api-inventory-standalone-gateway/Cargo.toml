@@ -10,13 +10,13 @@ name = "sdkwork-api-inventory-standalone-gateway"
 path = "src/main.rs"
 
 [dependencies]
-sdkwork_api_inventory_assembly = { package = "sdkwork-api-inventory-assembly", path = "../sdkwork-api-inventory-assembly" }
+sdkwork-api-inventory-assembly.workspace = true
 axum = { workspace = true }
 tokio = { workspace = true }
 tower-http = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 sdkwork-web-bootstrap.workspace = true
-sdkwork_routes_inventory_app_api.workspace = true
-sdkwork_routes_inventory_backend_api.workspace = true
-sdkwork_inventory_service_host.workspace = true
+sdkwork-routes-inventory-app-api.workspace = true
+sdkwork-routes-inventory-backend-api.workspace = true
+sdkwork-inventory-service-host.workspace = true

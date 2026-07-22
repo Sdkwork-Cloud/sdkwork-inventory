@@ -1,7 +1,7 @@
 pub use crate::sqlite_inventory::{
     BackendInventoryListPage, BackendInventoryMovementListQuery,
     BackendInventoryReservationListQuery, BackendInventoryStockListQuery,
-    MerchantInventoryScopeQuery, UpdateBackendInventoryStockCommand,
+    MerchantInventoryListQuery, MerchantInventoryScopeQuery, UpdateBackendInventoryStockCommand,
 };
 
 use sdkwork_contract_service::CommerceServiceError;
@@ -135,13 +135,15 @@ impl PostgresCommerceInventoryStore {
     ) -> Result<BackendInventoryListPage, CommerceServiceError> {
         list_simple_page(
             &self.pool,
-            &query.tenant_id,
-            query.organization_id.as_deref(),
             reservation_select_columns(),
             "commerce_inventory_reservation",
             "updated_at DESC, id DESC",
-            query.page,
-            query.page_size,
+            SimplePageRequest {
+                tenant_id: &query.tenant_id,
+                organization_id: query.organization_id.as_deref(),
+                page: query.page,
+                page_size: query.page_size,
+            },
             map_reservation_row,
         )
         .await
@@ -153,13 +155,15 @@ impl PostgresCommerceInventoryStore {
     ) -> Result<BackendInventoryListPage, CommerceServiceError> {
         list_simple_page(
             &self.pool,
-            &query.tenant_id,
-            query.organization_id.as_deref(),
             movement_select_columns(),
             "commerce_inventory_movement",
             "occurred_at DESC, id DESC",
-            query.page,
-            query.page_size,
+            SimplePageRequest {
+                tenant_id: &query.tenant_id,
+                organization_id: query.organization_id.as_deref(),
+                page: query.page,
+                page_size: query.page_size,
+            },
             map_movement_row,
         )
         .await
@@ -167,28 +171,22 @@ impl PostgresCommerceInventoryStore {
 
     pub async fn list_merchant_stocks(
         &self,
-        scope: MerchantInventoryScopeQuery,
-    ) -> Result<Vec<serde_json::Value>, CommerceServiceError> {
-        let organization_id = scope.organization_id.as_deref().unwrap_or("");
-        let rows = sqlx::query(
-            r#"
-            SELECT id, tenant_id, organization_id, sku_id, warehouse_id, fulfillment_node_id,
-                   available_quantity, reserved_quantity, inbound_quantity, damaged_quantity,
-                   status, version, created_at, updated_at
-            FROM commerce_inventory_stock
-            WHERE tenant_id = $1
-              AND ((organization_id = $2) OR (organization_id IS NULL AND $3 = ''))
-            ORDER BY updated_at DESC, id DESC
-            "#,
+        query: MerchantInventoryListQuery,
+    ) -> Result<BackendInventoryListPage, CommerceServiceError> {
+        list_simple_page(
+            &self.pool,
+            merchant_stock_select_columns(),
+            "commerce_inventory_stock",
+            "updated_at DESC, id DESC",
+            SimplePageRequest {
+                tenant_id: &query.tenant_id,
+                organization_id: query.organization_id.as_deref(),
+                page: query.page,
+                page_size: query.page_size,
+            },
+            map_merchant_stock_row,
         )
-        .bind(&scope.tenant_id)
-        .bind(organization_id)
-        .bind(organization_id)
-        .fetch_all(&self.pool)
         .await
-        .map_err(|error| store_error("failed to list merchant inventory stocks", error))?;
-
-        Ok(rows.iter().map(map_merchant_stock_row).collect())
     }
 
     pub async fn create_merchant_adjustment(
@@ -241,25 +239,29 @@ impl PostgresCommerceInventoryStore {
     }
 }
 
+struct SimplePageRequest<'a> {
+    tenant_id: &'a str,
+    organization_id: Option<&'a str>,
+    page: i64,
+    page_size: i64,
+}
+
 async fn list_simple_page(
     pool: &PgPool,
-    tenant_id: &str,
-    organization_id: Option<&str>,
     select_columns: &str,
     table: &str,
     order_by: &str,
-    page: i64,
-    page_size: i64,
+    request: SimplePageRequest<'_>,
     map_row: fn(&sqlx::postgres::PgRow) -> serde_json::Value,
 ) -> Result<BackendInventoryListPage, CommerceServiceError> {
-    let page = page.max(1);
-    let page_size = page_size.clamp(1, 200);
+    let page = request.page.max(1);
+    let page_size = request.page_size.clamp(1, 200);
     let offset = (page - 1) * page_size;
-    let organization_id = organization_id.unwrap_or("");
+    let organization_id = request.organization_id.unwrap_or("");
 
     let count_sql = format!("SELECT COUNT(*) AS total FROM {table} WHERE tenant_id = $1 AND ((organization_id = $2) OR (organization_id IS NULL AND $3 = ''))");
     let total_row = sqlx::query(&count_sql)
-        .bind(tenant_id)
+        .bind(request.tenant_id)
         .bind(organization_id)
         .bind(organization_id)
         .fetch_one(pool)
@@ -271,7 +273,7 @@ async fn list_simple_page(
         "SELECT {select_columns} FROM {table} WHERE tenant_id = $1 AND ((organization_id = $2) OR (organization_id IS NULL AND $3 = '')) ORDER BY {order_by} LIMIT $4 OFFSET $5"
     );
     let rows = sqlx::query(&list_sql)
-        .bind(tenant_id)
+        .bind(request.tenant_id)
         .bind(organization_id)
         .bind(organization_id)
         .bind(page_size)
@@ -294,6 +296,10 @@ fn reservation_select_columns() -> &'static str {
 
 fn movement_select_columns() -> &'static str {
     "id, tenant_id, organization_id, movement_no, sku_id, warehouse_id, fulfillment_node_id, movement_type, source_type, quantity, direction, quantity_before, quantity_after, business_type, source_id, request_no, idempotency_key, occurred_at, created_at"
+}
+
+fn merchant_stock_select_columns() -> &'static str {
+    "id, tenant_id, organization_id, sku_id, warehouse_id, fulfillment_node_id, available_quantity, reserved_quantity, inbound_quantity, damaged_quantity, status, version, created_at, updated_at"
 }
 
 fn map_stock_row(row: &sqlx::postgres::PgRow) -> serde_json::Value {

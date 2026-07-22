@@ -28,6 +28,41 @@ impl MerchantInventoryScopeQuery {
     }
 }
 
+#[derive(Debug, Clone, Deserialize)]
+pub struct MerchantInventoryListQuery {
+    pub tenant_id: String,
+    pub organization_id: Option<String>,
+    pub page: i64,
+    pub page_size: i64,
+}
+
+impl MerchantInventoryListQuery {
+    pub fn new(
+        tenant_id: &str,
+        organization_id: Option<&str>,
+        page: i64,
+        page_size: i64,
+    ) -> Result<Self, CommerceServiceError> {
+        let scope = MerchantInventoryScopeQuery::new(tenant_id, organization_id)?;
+        if page < 1 {
+            return Err(CommerceServiceError::validation(
+                "page must be greater than or equal to 1",
+            ));
+        }
+        if !(1..=200).contains(&page_size) {
+            return Err(CommerceServiceError::validation(
+                "page_size must be between 1 and 200",
+            ));
+        }
+        Ok(Self {
+            tenant_id: scope.tenant_id,
+            organization_id: scope.organization_id,
+            page,
+            page_size,
+        })
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct SqliteCommerceInventoryStore {
     pool: SqlitePool,
@@ -228,7 +263,9 @@ impl SqliteCommerceInventoryStore {
             .await
             .map_err(|error| store_error("failed to update inventory stock", error))?;
         if result.rows_affected() == 0 {
-            return Err(CommerceServiceError::not_found("inventory stock was not found"));
+            return Err(CommerceServiceError::not_found(
+                "inventory stock was not found",
+            ));
         }
 
         let row = sqlx::query(
@@ -257,15 +294,17 @@ impl SqliteCommerceInventoryStore {
     ) -> Result<BackendInventoryListPage, CommerceServiceError> {
         list_paged_rows(
             &self.pool,
-            &query.tenant_id,
-            query.organization_id.as_deref(),
             "commerce_inventory_reservation",
             reservation_select_columns(),
-            query.order_id.as_deref(),
-            query.sku_id.as_deref(),
-            Some(("status", query.status.as_deref())),
-            query.page,
-            query.page_size,
+            PagedRowsRequest {
+                tenant_id: &query.tenant_id,
+                organization_id: query.organization_id.as_deref(),
+                order_id: query.order_id.as_deref(),
+                sku_id: query.sku_id.as_deref(),
+                field_filter: Some(("status", query.status.as_deref())),
+                page: query.page,
+                page_size: query.page_size,
+            },
             map_reservation_row,
         )
         .await
@@ -277,15 +316,17 @@ impl SqliteCommerceInventoryStore {
     ) -> Result<BackendInventoryListPage, CommerceServiceError> {
         list_paged_rows(
             &self.pool,
-            &query.tenant_id,
-            query.organization_id.as_deref(),
             "commerce_inventory_movement",
             movement_select_columns(),
-            None,
-            query.sku_id.as_deref(),
-            Some(("movement_type", query.movement_type.as_deref())),
-            query.page,
-            query.page_size,
+            PagedRowsRequest {
+                tenant_id: &query.tenant_id,
+                organization_id: query.organization_id.as_deref(),
+                order_id: None,
+                sku_id: query.sku_id.as_deref(),
+                field_filter: Some(("movement_type", query.movement_type.as_deref())),
+                page: query.page,
+                page_size: query.page_size,
+            },
             map_movement_row,
         )
         .await
@@ -293,28 +334,24 @@ impl SqliteCommerceInventoryStore {
 
     pub async fn list_merchant_stocks(
         &self,
-        scope: MerchantInventoryScopeQuery,
-    ) -> Result<Vec<serde_json::Value>, CommerceServiceError> {
-        let organization_id = scope.organization_id.as_deref().unwrap_or("");
-        let rows = sqlx::query(
-            r#"
-            SELECT id, tenant_id, organization_id, sku_id, warehouse_id, fulfillment_node_id,
-                   available_quantity, reserved_quantity, inbound_quantity, damaged_quantity,
-                   status, version, created_at, updated_at
-            FROM commerce_inventory_stock
-            WHERE tenant_id = CAST(? AS TEXT)
-              AND ((organization_id = CAST(? AS TEXT)) OR (organization_id IS NULL AND ? = ''))
-            ORDER BY updated_at DESC, id DESC
-            "#,
+        query: MerchantInventoryListQuery,
+    ) -> Result<BackendInventoryListPage, CommerceServiceError> {
+        list_paged_rows(
+            &self.pool,
+            "commerce_inventory_stock",
+            merchant_stock_select_columns(),
+            PagedRowsRequest {
+                tenant_id: &query.tenant_id,
+                organization_id: query.organization_id.as_deref(),
+                order_id: None,
+                sku_id: None,
+                field_filter: None,
+                page: query.page,
+                page_size: query.page_size,
+            },
+            map_merchant_stock_row,
         )
-        .bind(&scope.tenant_id)
-        .bind(organization_id)
-        .bind(organization_id)
-        .fetch_all(&self.pool)
         .await
-        .map_err(|error| store_error("failed to list merchant inventory stocks", error))?;
-
-        Ok(rows.iter().map(map_merchant_stock_row).collect())
     }
 
     pub async fn create_merchant_adjustment(
@@ -367,34 +404,38 @@ impl SqliteCommerceInventoryStore {
     }
 }
 
-async fn list_paged_rows(
-    pool: &SqlitePool,
-    tenant_id: &str,
-    organization_id: Option<&str>,
-    table: &str,
-    select_columns: &str,
-    order_id: Option<&str>,
-    sku_id: Option<&str>,
-    field_filter: Option<(&str, Option<&str>)>,
+struct PagedRowsRequest<'a> {
+    tenant_id: &'a str,
+    organization_id: Option<&'a str>,
+    order_id: Option<&'a str>,
+    sku_id: Option<&'a str>,
+    field_filter: Option<(&'a str, Option<&'a str>)>,
     page: i64,
     page_size: i64,
+}
+
+async fn list_paged_rows(
+    pool: &SqlitePool,
+    table: &str,
+    select_columns: &str,
+    request: PagedRowsRequest<'_>,
     map_row: fn(&sqlx::sqlite::SqliteRow) -> serde_json::Value,
 ) -> Result<BackendInventoryListPage, CommerceServiceError> {
-    let page = page.max(1);
-    let page_size = page_size.clamp(1, 200);
+    let page = request.page.max(1);
+    let page_size = request.page_size.clamp(1, 200);
     let offset = (page - 1) * page_size;
-    let organization_id = organization_id.unwrap_or("");
+    let organization_id = request.organization_id.unwrap_or("");
 
     let mut filters = String::from(
         " WHERE tenant_id = CAST(? AS TEXT) AND ((organization_id = CAST(? AS TEXT)) OR (organization_id IS NULL AND ? = ''))",
     );
-    if order_id.is_some() {
+    if request.order_id.is_some() {
         filters.push_str(" AND order_id = CAST(? AS TEXT)");
     }
-    if sku_id.is_some() {
+    if request.sku_id.is_some() {
         filters.push_str(" AND sku_id = CAST(? AS TEXT)");
     }
-    if let Some((column, Some(_))) = field_filter {
+    if let Some((column, Some(_))) = request.field_filter {
         filters.push_str(&format!(" AND {column} = CAST(? AS TEXT)"));
     }
 
@@ -406,16 +447,16 @@ async fn list_paged_rows(
 
     let count_sql = format!("SELECT COUNT(*) AS total FROM {table}{filters}");
     let mut count_query = sqlx::query(&count_sql)
-        .bind(tenant_id)
+        .bind(request.tenant_id)
         .bind(organization_id)
         .bind(organization_id);
-    if let Some(order_id) = order_id {
+    if let Some(order_id) = request.order_id {
         count_query = count_query.bind(order_id);
     }
-    if let Some(sku_id) = sku_id {
+    if let Some(sku_id) = request.sku_id {
         count_query = count_query.bind(sku_id);
     }
-    if let Some((_, Some(value))) = field_filter {
+    if let Some((_, Some(value))) = request.field_filter {
         count_query = count_query.bind(value);
     }
     let total_row = count_query
@@ -428,16 +469,16 @@ async fn list_paged_rows(
         "SELECT {select_columns} FROM {table}{filters} ORDER BY {order_by} LIMIT ? OFFSET ?"
     );
     let mut list_query = sqlx::query(&list_sql)
-        .bind(tenant_id)
+        .bind(request.tenant_id)
         .bind(organization_id)
         .bind(organization_id);
-    if let Some(order_id) = order_id {
+    if let Some(order_id) = request.order_id {
         list_query = list_query.bind(order_id);
     }
-    if let Some(sku_id) = sku_id {
+    if let Some(sku_id) = request.sku_id {
         list_query = list_query.bind(sku_id);
     }
-    if let Some((_, Some(value))) = field_filter {
+    if let Some((_, Some(value))) = request.field_filter {
         list_query = list_query.bind(value);
     }
     list_query = list_query.bind(page_size).bind(offset);
@@ -460,6 +501,10 @@ fn reservation_select_columns() -> &'static str {
 
 fn movement_select_columns() -> &'static str {
     "id, tenant_id, organization_id, movement_no, sku_id, warehouse_id, fulfillment_node_id, movement_type, source_type, quantity, direction, quantity_before, quantity_after, business_type, source_id, request_no, idempotency_key, occurred_at, created_at"
+}
+
+fn merchant_stock_select_columns() -> &'static str {
+    "id, tenant_id, organization_id, sku_id, warehouse_id, fulfillment_node_id, available_quantity, reserved_quantity, inbound_quantity, damaged_quantity, status, version, created_at, updated_at"
 }
 
 fn map_stock_row(row: &sqlx::sqlite::SqliteRow) -> serde_json::Value {
@@ -586,3 +631,6 @@ fn current_timestamp_string() -> String {
         .unwrap_or(0);
     format!("{seconds}")
 }
+
+#[cfg(test)]
+mod tests;

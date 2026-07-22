@@ -5,5 +5,6 @@ pub use postgres_inventory::PostgresCommerceInventoryStore;
 pub use sqlite_inventory::{
     BackendInventoryListPage, BackendInventoryMovementListQuery,
     BackendInventoryReservationListQuery, BackendInventoryStockListQuery,
-    MerchantInventoryScopeQuery, SqliteCommerceInventoryStore, UpdateBackendInventoryStockCommand,
+    MerchantInventoryListQuery, MerchantInventoryScopeQuery, SqliteCommerceInventoryStore,
+    UpdateBackendInventoryStockCommand,
 };

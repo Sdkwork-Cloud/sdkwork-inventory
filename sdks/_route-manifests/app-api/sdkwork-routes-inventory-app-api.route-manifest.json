@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.route.manifest",
+  "packageName": "sdkwork-routes-inventory-app-api",
+  "surface": "app-api",
+  "owner": "sdkwork-inventory",
+  "domain": "commerce",
+  "capability": "inventory",
+  "apiAuthority": "sdkwork-inventory-app-api",
+  "sdkFamily": "sdkwork-inventory-app-sdk",
+  "prefix": "/app/v3/api",
+  "source": {
+    "crateRoot": "crates/sdkwork-routes-inventory-app-api",
+    "crateImport": "sdkwork_routes_inventory_app_api"
+  },
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/app/v3/api/shops/current/inventory/stocks",
+      "operationId": "inventory.stocks.list",
+      "tags": [
+        "inventory"
+      ],
+      "auth": {
+        "mode": "dual-token",
+        "required": true,
+        "permission": "commerce.inventory.read"
+      },
+      "ownership": {
+        "owner": "sdkwork-inventory",
+        "apiAuthority": "sdkwork-inventory-app-api"
+      },
+      "source": {
+        "file": "sdkwork-routes-inventory-app-api:/app/v3/api/shops/current/inventory/stocks"
+      },
+      "requestContext": "WebRequestContext",
+      "apiSurface": "app-api"
+    },
+    {
+      "method": "POST",
+      "path": "/app/v3/api/shops/current/inventory/stocks/{stockId}/adjustments",
+      "operationId": "inventory.stocks.adjustments.create",
+      "tags": [
+        "inventory"
+      ],
+      "auth": {
+        "mode": "dual-token",
+        "required": true,
+        "permission": "commerce.inventory.manage"
+      },
+      "ownership": {
+        "owner": "sdkwork-inventory",
+        "apiAuthority": "sdkwork-inventory-app-api"
+      },
+      "source": {
+        "file": "sdkwork-routes-inventory-app-api:/app/v3/api/shops/current/inventory/stocks/{stockId}/adjustments"
+      },
+      "requestContext": "WebRequestContext",
+      "apiSurface": "app-api"
+    }
+  ]
+}

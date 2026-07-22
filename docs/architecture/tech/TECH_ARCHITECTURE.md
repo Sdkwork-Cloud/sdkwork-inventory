@@ -2,80 +2,83 @@
 
 Status: active
 Owner: SDKWork maintainers
-Updated: 2026-06-24
-Specs: ARCHITECTURE_DECISION_SPEC.md, RUST_CODE_SPEC.md, API_SPEC.md, WEB_FRAMEWORK_SPEC.md, DATABASE_FRAMEWORK_SPEC.md
-
-## Document Map
-
-- Commerce repository dissolution: `../sdkwork-specs/MIGRATION_SPEC.md` §8
+Updated: 2026-07-22
+Specs: ARCHITECTURE_DECISION_SPEC.md, RUST_CODE_SPEC.md, API_SPEC.md, SDK_SPEC.md, PAGINATION_SPEC.md, SECURITY_SPEC.md,
+APPLICATION_GATEWAY_SPEC.md
 
 ## 1. Architecture Overview
 
-`sdkwork-inventory` is a **T1 capability repository** in the commerce domain. It owns domain services, SQL repositories, HTTP route builders, and a standalone gateway with IAM middleware. The `sdkwork-commerce (deleted)` monolith has been dissolved; each T1 capability repository is self-contained.
-
-```text
-T1 inventory crate  →  build_*_router()     (no IAM)
-T1 standalone-gateway       →  with_request_identity / with_backend_request_identity
-```
-
-Migration status: **complete**.
+`sdkwork-inventory` is a composable Rust/Axum capability. Domain and SQLx layers are independent of
+HTTP; route crates expose app/backend routers; the assembly creates shared service state and merges
+those routers; the standalone gateway adds process concerns. The platform cloud gateway embeds the
+same assembly rather than rebuilding inventory state.
 
 ## 2. Technology Choices
 
-- **Rust** domain services and SQLx repositories (`RUST_CODE_SPEC.md`)
-- **Axum** HTTP routers integrated via `sdkwork-web-framework` (`WEB_FRAMEWORK_SPEC.md`)
-- **sqlx** for Postgres/SQLite repository implementations (`DATABASE_FRAMEWORK_SPEC.md`)
-- **Sibling path dependencies** from this repository's `Cargo.toml` — cross-T1 references use `sdkwork_commerce_*` crate names per `sdkwork-<domain>-<capability>-service` naming
+- Rust domain services and ports.
+- SQLx repositories for PostgreSQL and SQLite with store-level pagination.
+- Axum route composition through `sdkwork-web-framework`.
+- `sdkwork-utils-rust` HTTP helpers for validated list parameters and standard envelopes.
+- `@sdkwork/sdk-generator` through `sdkgen` for generated transports.
 
 ## 3. System Boundaries And Modules
 
-| Layer | Owner | Notes |
-| --- | --- | --- |
-| Domain commands/queries | `sdkwork-inventory-service` | Business validation and ports |
-| SQL repositories | `sdkwork-commerce (deleted)-inventory-repository-sqlx` | Tenant-scoped persistence |
-| HTTP route builders | sdkwork-routes-inventory-app-api, sdkwork-routes-inventory-backend-api | `build_*_router` exports without IAM |
-| IAM / gateway composition | `sdkwork-api-inventory-standalone-gateway` | IAM middleware at T1 standalone-gateway |
-| OpenAPI / SDK authority | `sdkwork-inventory/sdks/` | Per-T1 SDK families |
+| Layer | Owner |
+| --- | --- |
+| Domain behavior | `sdkwork-inventory-service` |
+| SQL persistence | `sdkwork-inventory-repository-sqlx` |
+| Database lifecycle adapter | `sdkwork-inventory-database-host` |
+| Shared runtime state | `sdkwork-inventory-service-host` |
+| App routes | `sdkwork-routes-inventory-app-api` |
+| Backend routes | `sdkwork-routes-inventory-backend-api` |
+| Router composition | `sdkwork-api-inventory-assembly` |
+| Independent process | `sdkwork-api-inventory-standalone-gateway` |
 
-## 4. Directory And Package Layout
+## 4. Runtime Composition
 
-Standard 7-crate capability workspace:
+```text
+database pool -> inventory service host -> inventory assembly
+                                      -> app router (2 operations)
+                                      -> backend router (4 operations)
+inventory assembly -> standalone gateway or platform cloud gateway
+```
 
-- `crates/sdkwork-inventory-service/`
-- `crates/sdkwork-commerce (deleted)-inventory-repository-sqlx/`
-- `crates/sdkwork-routes-inventory-app-api/`
-- `crates/sdkwork-routes-inventory-backend-api/`
-- `crates/sdkwork-inventory-database-host/`
-- `crates/sdkwork-inventory-service-host/`
-- `crates/sdkwork-api-inventory-standalone-gateway/`
-
-No PC application root in this repository yet.
+Health, readiness, liveness, and metrics endpoints belong to the host gateway and are not exported
+by the capability assembly.
 
 ## 5. API, SDK, And Data Ownership
 
-- App API prefix: `/app/v3/api/shops/current/inventory`
-- Backend API prefix: `/backend/v3/api/inventory`
-- Table prefix: `commerce_` for capability-owned tables (`DOMAIN_SPEC` domain=commerce)
-- Public SDK consumption: generated per-T1 SDK families; do not hand-craft raw HTTP (`SDK_SPEC.md`)
+| Surface | Route owner | API authority | SDK family |
+| --- | --- | --- | --- |
+| app-api | `sdkwork-routes-inventory-app-api` | `sdkwork-inventory-app-api` | `sdkwork-inventory-app-sdk` |
+| backend-api | `sdkwork-routes-inventory-backend-api` | `sdkwork-inventory-backend-api` | `sdkwork-inventory-backend-sdk` |
+
+The app family contains 2 operations and the backend family contains 4. No inventory open-api
+surface is declared. SQL ownership remains in inventory repository/database contracts; this change
+does not alter schemas or migrations.
 
 ## 6. Security, Privacy, And Observability
 
-- Authentication and tenant context are applied at the T1 `*-standalone-gateway` IAM middleware; handlers read `IamAppContext` from extensions.
-- Write routes require idempotency and request-hash headers where applicable (`API_SPEC.md`, `SECURITY_SPEC.md`).
-- Ledger, payment, and account mutations must fail closed on validation errors.
-- Structured errors use `CommerceServiceError` contracts; do not leak internal SQL details to clients.
+IAM middleware supplies authenticated tenant context. Route permissions are
+`commerce.inventory.read` and `commerce.inventory.manage`. Responses follow the current SDKWork API
+envelope and ProblemDetail contracts; identifiers outside the public resource contract remain
+internal. SQL errors are mapped without leaking database details.
 
 ## 7. Deployment And Runtime Topology
 
-- Local development: `cargo test --workspace` in this repository.
-- Independent deployment via `sdkwork-api-inventory-standalone-gateway`; production gateway routing is owned by deployment/app topology specs.
+The standalone binary supports independent validation. Production composition uses the cloud
+gateway feature/dependency/runtime contract and the same assembly export. Both use the process-shared
+database pool rather than creating route-local pools.
 
 ## 8. Architecture Decision Index
 
-- Commerce repository dissolution: `../sdkwork-specs/MIGRATION_SPEC.md` §8
+No repository-local ADR is required for the current authority mapping; machine evidence is in the
+assembly manifest, component specs, route manifests, and SDK manifests.
 
 ## 9. Verification
 
-```bash
+```powershell
+pnpm check
 cargo test --workspace
+cargo clippy --workspace --tests -- -D warnings
 ```

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-inventory-backend-sdk",
+    "displayName": "SDKWork Inventory Backend SDK",
+    "version": "0.1.0",
+    "type": "sdk-family",
+    "root": "sdks/sdkwork-inventory-backend-sdk",
+    "domain": "commerce",
+    "capability": "inventory-backend-sdk",
+    "surface": "backend-api",
+    "status": "standardized",
+    "languages": ["typescript"],
+    "generated": true,
+    "private": false,
+    "manifests": ["sdk-manifest.json"]
+  },
+  "canonicalSpecs": [
+    { "file": "SDK_SPEC.md", "path": "../../../sdkwork-specs/SDK_SPEC.md", "purpose": "SDK family and consumer contract." },
+    { "file": "SDK_WORKSPACE_GENERATION_SPEC.md", "path": "../../../sdkwork-specs/SDK_WORKSPACE_GENERATION_SPEC.md", "purpose": "Generator-first workspace layout." },
+    { "file": "API_SPEC.md", "path": "../../../sdkwork-specs/API_SPEC.md", "purpose": "API authority and wire contract." },
+    { "file": "TEST_SPEC.md", "path": "../../../sdkwork-specs/TEST_SPEC.md", "purpose": "Generation and contract verification." }
+  ],
+  "sdk": {
+    "family": "sdkwork-inventory-backend-sdk",
+    "authority": "sdkwork-inventory-backend-api",
+    "sdkOwner": "sdkwork-inventory",
+    "apiPrefix": "/backend/v3/api",
+    "packageName": "@sdkwork/inventory-backend-sdk",
+    "sdkName": "sdkwork-inventory-backend-sdk",
+    "sdkType": "backend",
+    "sdkSurface": "backend",
+    "generatedOutput": "sdkwork-inventory-backend-sdk-typescript/generated/server-openapi",
+    "standardProfile": "sdkwork-v3"
+  },
+  "contracts": {
+    "apiAuthority": { "name": "sdkwork-inventory-backend-api", "owner": "sdkwork-inventory", "prefix": "/backend/v3/api", "authorityOpenApi": "openapi/sdkwork-inventory-backend-api.openapi.json", "derivedOpenApi": ["openapi/sdkwork-inventory-backend-api.sdkgen.json"], "standard": "../../../sdkwork-specs/SDK_SPEC.md" },
+    "publicExports": [], "runtimeEntrypoints": ["sdk-manifest.json"], "routeManifest": null,
+    "sdkDependencies": [], "dependencyApiExports": [], "dependencyApiSurfaces": [],
+    "sdkClients": ["SdkworkBackendClient"], "events": [], "configKeys": ["sdk-manifest.json"]
+  },
+  "verification": { "commands": ["node ../sdkwork-specs/tools/check-sdk-standard.mjs --workspace ."] }
+}

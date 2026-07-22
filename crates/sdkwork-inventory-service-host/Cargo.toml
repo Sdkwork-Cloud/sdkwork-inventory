@@ -11,4 +11,4 @@ path = "src/lib.rs"
 [dependencies]
 sdkwork-database-sqlx.workspace = true
 sdkwork-database-spi.workspace = true
-sdkwork_inventory_database_host.workspace = true
+sdkwork-inventory-database-host.workspace = true

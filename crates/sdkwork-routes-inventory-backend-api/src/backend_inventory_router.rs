@@ -1,5 +1,4 @@
 use axum::extract::{Extension, Path, Query, State};
-use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::routing::{get, patch};
 use axum::{Json, Router};
@@ -10,6 +9,12 @@ use sdkwork_inventory_repository_sqlx::{
     BackendInventoryReservationListQuery, BackendInventoryStockListQuery,
     PostgresCommerceInventoryStore, SqliteCommerceInventoryStore,
     UpdateBackendInventoryStockCommand,
+};
+use sdkwork_utils_rust::http_api::{
+    PageInfo, PageMode, SdkWorkApiResponse, SdkWorkPageData, SdkWorkResourceData,
+};
+use sdkwork_web_core::{
+    problem_response, ProblemCorrelation, WebFrameworkError, WebFrameworkErrorKind,
 };
 use serde::{Deserialize, Serialize};
 use sqlx::{PgPool, SqlitePool};
@@ -80,15 +85,6 @@ struct UpdateStockRequest {
     available_quantity: Option<i64>,
     safety_stock_quantity: Option<i64>,
     status: Option<String>,
-}
-
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-struct BackendInventoryApiResult<T: Serialize> {
-    code: String,
-    msg: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    data: Option<T>,
 }
 
 pub fn backend_inventory_router_with_sqlite_pool(pool: SqlitePool) -> Router {
@@ -200,7 +196,7 @@ async fn list_inventory_stocks(
     };
 
     match state.store.list_stocks(query).await {
-        Ok(page) => Json(BackendInventoryApiResult::success(page)).into_response(),
+        Ok(page) => success_inventory_page(page),
         Err(error) => inventory_error_response("inventory stocks list failed", error),
     }
 }
@@ -225,7 +221,7 @@ async fn update_inventory_stock(
     };
 
     match state.store.update_stock(command).await {
-        Ok(item) => Json(BackendInventoryApiResult::success(item)).into_response(),
+        Ok(item) => success_resource_response(item),
         Err(error) => inventory_error_response("inventory stock update failed", error),
     }
 }
@@ -250,7 +246,7 @@ async fn list_inventory_reservations(
     };
 
     match state.store.list_reservations(query).await {
-        Ok(page) => Json(BackendInventoryApiResult::success(page)).into_response(),
+        Ok(page) => success_inventory_page(page),
         Err(error) => inventory_error_response("inventory reservations list failed", error),
     }
 }
@@ -274,71 +270,73 @@ async fn list_inventory_movements(
     };
 
     match state.store.list_movements(query).await {
-        Ok(page) => Json(BackendInventoryApiResult::success(page)).into_response(),
+        Ok(page) => success_inventory_page(page),
         Err(error) => inventory_error_response("inventory movements list failed", error),
     }
 }
 
-impl<T: Serialize> BackendInventoryApiResult<T> {
-    fn success(data: T) -> Self {
-        Self {
-            code: "0".to_owned(),
-            msg: "success".to_owned(),
-            data: Some(data),
-        }
-    }
-
-    fn error(code: &str, msg: impl Into<String>) -> Self {
-        Self {
-            code: code.to_owned(),
-            msg: msg.into(),
-            data: None,
-        }
-    }
-}
-
 fn unauthorized_response(message: impl Into<String>) -> Response {
-    (
-        StatusCode::UNAUTHORIZED,
-        Json(BackendInventoryApiResult::<()>::error("4010", message)),
-    )
-        .into_response()
+    api_problem_response(WebFrameworkErrorKind::MissingCredentials, message)
 }
 
 fn inventory_error_response(context: &str, error: CommerceServiceError) -> Response {
-    let _ = context;
     match error.code() {
-        "validation" => (
-            StatusCode::BAD_REQUEST,
-            Json(BackendInventoryApiResult::<()>::error(
-                "4001",
-                error.message(),
-            )),
-        )
-            .into_response(),
-        "not_found" => (
-            StatusCode::NOT_FOUND,
-            Json(BackendInventoryApiResult::<()>::error(
-                "4040",
-                error.message(),
-            )),
-        )
-            .into_response(),
-        "conflict" => (
-            StatusCode::CONFLICT,
-            Json(BackendInventoryApiResult::<()>::error(
-                "4090",
-                error.message(),
-            )),
-        )
-            .into_response(),
-        _ => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(BackendInventoryApiResult::<()>::error(
-                "5000",
-                error.message(),
-            )),
-        )
-            .into_response(),
+        "validation" => api_problem_response(WebFrameworkErrorKind::BadRequest, error.message()),
+        "not_found" => api_problem_response(WebFrameworkErrorKind::NotFound, error.message()),
+        "conflict" => api_problem_response(WebFrameworkErrorKind::Conflict, error.message()),
+        "unauthenticated" => {
+            api_problem_response(WebFrameworkErrorKind::MissingCredentials, error.message())
+        }
+        _ => api_problem_response(
+            WebFrameworkErrorKind::DependencyUnavailable,
+            format!("{context}: {}", error.message()),
+        ),
     }
+}
+
+fn trace_id() -> String {
+    uuid::Uuid::new_v4().to_string()
+}
+
+fn success_inventory_page(page: BackendInventoryListPage) -> Response {
+    let page_number = page.page.max(1);
+    let page_size = page.page_size.max(1);
+    let total = page.total.max(0);
+    let total_pages = total.saturating_add(page_size - 1) / page_size;
+    Json(SdkWorkApiResponse::success(
+        SdkWorkPageData {
+            items: page.items,
+            page_info: PageInfo {
+                mode: PageMode::Offset,
+                page: Some(page_number as i32),
+                page_size: Some(page_size as i32),
+                total_items: Some(total.to_string()),
+                total_pages: Some(total_pages as i32),
+                next_cursor: None,
+                has_more: Some(page_number * page_size < total),
+            },
+        },
+        trace_id(),
+    ))
+    .into_response()
+}
+
+fn success_resource_response<T: Serialize>(item: T) -> Response {
+    Json(SdkWorkApiResponse::success(
+        SdkWorkResourceData { item },
+        trace_id(),
+    ))
+    .into_response()
+}
+
+fn api_problem_response(kind: WebFrameworkErrorKind, message: impl Into<String>) -> Response {
+    let trace_id = trace_id();
+    problem_response(
+        &WebFrameworkError {
+            kind,
+            message: message.into(),
+            retry_after_seconds: None,
+        },
+        ProblemCorrelation::from(Some(trace_id.as_str())),
+    )
 }

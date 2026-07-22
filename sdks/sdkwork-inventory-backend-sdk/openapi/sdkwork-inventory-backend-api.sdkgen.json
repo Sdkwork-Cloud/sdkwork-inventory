@@ -1,0 +1,1125 @@
+{
+  "openapi": "3.1.2",
+  "info": {
+    "title": "SDKWork Inventory Backend API",
+    "version": "1.0.0",
+    "description": "Owner-only inventory capability API contract.",
+    "x-sdkwork-api-authority": "sdkwork-inventory-backend-api",
+    "x-sdkwork-sdk-family": "sdkwork-inventory-backend-sdk",
+    "x-sdkwork-owner": "sdkwork-inventory"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8080",
+      "description": "Local SDKWork gateway"
+    }
+  ],
+  "tags": [
+    {
+      "name": "inventory",
+      "description": "Inventory capability resources.",
+      "x-sdk-nested-resource-surface": true
+    }
+  ],
+  "security": [
+    {
+      "AuthToken": [],
+      "AccessToken": []
+    }
+  ],
+  "paths": {
+    "/backend/v3/api/inventory/stocks": {
+      "get": {
+        "tags": [
+          "inventory"
+        ],
+        "summary": "List inventory stocks for operators.",
+        "operationId": "inventory.stocks.list",
+        "parameters": [
+          {
+            "name": "sku_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "warehouse_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryStockPageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Resource conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "x-sdkwork-owner": "sdkwork-inventory",
+        "x-sdkwork-api-authority": "sdkwork-inventory-backend-api",
+        "x-sdkwork-domain": "commerce",
+        "x-sdkwork-resource": "inventory.stocks",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-server-request-id": true,
+        "x-sdkwork-source-route-crate": "sdkwork-routes-inventory-backend-api",
+        "x-sdkwork-source": "sdkwork-routes-inventory-backend-api:/backend/v3/api/inventory/stocks",
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "commerce.inventory.read"
+      }
+    },
+    "/backend/v3/api/inventory/stocks/{stockId}": {
+      "patch": {
+        "tags": [
+          "inventory"
+        ],
+        "summary": "Update an inventory stock record.",
+        "operationId": "inventory.stocks.update",
+        "parameters": [
+          {
+            "name": "stockId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryStockResourceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Resource conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "x-sdkwork-owner": "sdkwork-inventory",
+        "x-sdkwork-api-authority": "sdkwork-inventory-backend-api",
+        "x-sdkwork-domain": "commerce",
+        "x-sdkwork-resource": "inventory.stocks",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-server-request-id": true,
+        "x-sdkwork-source-route-crate": "sdkwork-routes-inventory-backend-api",
+        "x-sdkwork-source": "sdkwork-routes-inventory-backend-api:/backend/v3/api/inventory/stocks/{stockId}",
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "commerce.inventory.manage",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateInventoryStockRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/backend/v3/api/inventory/reservations": {
+      "get": {
+        "tags": [
+          "inventory"
+        ],
+        "summary": "List inventory reservations.",
+        "operationId": "inventory.reservations.list",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sku_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryReservationPageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Resource conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "x-sdkwork-owner": "sdkwork-inventory",
+        "x-sdkwork-api-authority": "sdkwork-inventory-backend-api",
+        "x-sdkwork-domain": "commerce",
+        "x-sdkwork-resource": "inventory.reservations",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-server-request-id": true,
+        "x-sdkwork-source-route-crate": "sdkwork-routes-inventory-backend-api",
+        "x-sdkwork-source": "sdkwork-routes-inventory-backend-api:/backend/v3/api/inventory/reservations",
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "commerce.inventory.read"
+      }
+    },
+    "/backend/v3/api/inventory/movements": {
+      "get": {
+        "tags": [
+          "inventory"
+        ],
+        "summary": "List inventory movements.",
+        "operationId": "inventory.movements.list",
+        "parameters": [
+          {
+            "name": "sku_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "movement_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryMovementPageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Resource conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "x-sdkwork-owner": "sdkwork-inventory",
+        "x-sdkwork-api-authority": "sdkwork-inventory-backend-api",
+        "x-sdkwork-domain": "commerce",
+        "x-sdkwork-resource": "inventory.movements",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-server-request-id": true,
+        "x-sdkwork-source-route-crate": "sdkwork-routes-inventory-backend-api",
+        "x-sdkwork-source": "sdkwork-routes-inventory-backend-api:/backend/v3/api/inventory/movements",
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-permission": "commerce.inventory.read"
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "AuthToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "AccessToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Access-Token"
+      }
+    },
+    "schemas": {
+      "SdkWorkApiResponse": {
+        "type": "object",
+        "required": [
+          "code",
+          "data",
+          "traceId"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "const": 0
+          },
+          "data": {},
+          "traceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "PageInfo": {
+        "type": "object",
+        "required": [
+          "mode"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "offset",
+              "cursor"
+            ]
+          },
+          "page": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "pageSize": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "totalItems": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "totalPages": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "hasMore": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      },
+      "ProblemDetail": {
+        "type": "object",
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "code",
+          "traceId"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "format": "uri-reference"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "traceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "instance": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "operationId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "InventoryStock": {
+        "type": "object",
+        "required": [
+          "id",
+          "tenantId",
+          "skuId",
+          "availableQuantity",
+          "reservedQuantity",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "skuId": {
+            "type": "string"
+          },
+          "warehouseId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fulfillmentNodeId": {
+            "type": "string"
+          },
+          "onHandQuantity": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "availableQuantity": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "lockedQuantity": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reservedQuantity": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "inboundQuantity": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "damagedQuantity": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "safetyStockQuantity": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      },
+      "InventoryReservation": {
+        "type": "object",
+        "required": [
+          "id",
+          "tenantId",
+          "skuId",
+          "status",
+          "quantity"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "reservationNo": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "skuId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": true
+      },
+      "InventoryMovement": {
+        "type": "object",
+        "required": [
+          "id",
+          "tenantId",
+          "skuId",
+          "movementType",
+          "quantity"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "movementNo": {
+            "type": "string"
+          },
+          "skuId": {
+            "type": "string"
+          },
+          "movementType": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "direction": {
+            "type": "string"
+          },
+          "occurredAt": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      },
+      "CreateInventoryAdjustmentRequest": {
+        "type": "object",
+        "required": [
+          "quantityDelta"
+        ],
+        "properties": {
+          "quantityDelta": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateInventoryStockRequest": {
+        "type": "object",
+        "minProperties": 1,
+        "properties": {
+          "availableQuantity": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "safetyStockQuantity": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InventoryStockPageResponse": {
+        "type": "object",
+        "required": [
+          "code",
+          "data",
+          "traceId"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "const": 0
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "items",
+              "pageInfo"
+            ],
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/InventoryStock"
+                }
+              },
+              "pageInfo": {
+                "$ref": "#/components/schemas/PageInfo"
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "InventoryReservationPageResponse": {
+        "type": "object",
+        "required": [
+          "code",
+          "data",
+          "traceId"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "const": 0
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "items",
+              "pageInfo"
+            ],
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/InventoryReservation"
+                }
+              },
+              "pageInfo": {
+                "$ref": "#/components/schemas/PageInfo"
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "InventoryMovementPageResponse": {
+        "type": "object",
+        "required": [
+          "code",
+          "data",
+          "traceId"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "const": 0
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "items",
+              "pageInfo"
+            ],
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/InventoryMovement"
+                }
+              },
+              "pageInfo": {
+                "$ref": "#/components/schemas/PageInfo"
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "InventoryStockResourceResponse": {
+        "type": "object",
+        "required": [
+          "code",
+          "data",
+          "traceId"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "const": 0
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "item"
+            ],
+            "properties": {
+              "item": {
+                "$ref": "#/components/schemas/InventoryStock"
+              }
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Invalid request",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetail"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Authentication required",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetail"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Permission denied",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetail"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetail"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "Resource conflict",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetail"
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Internal server error",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetail"
+            }
+          }
+        }
+      }
+    }
+  }
+}

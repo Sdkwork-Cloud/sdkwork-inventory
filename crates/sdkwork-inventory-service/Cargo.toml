@@ -10,4 +10,4 @@ description = "SDKWork commerce inventory domain rules for stock, reservations, 
 path = "src/lib.rs"
 
 [dependencies]
-sdkwork_contract_service.workspace = true
+sdkwork-contract-service.workspace = true
