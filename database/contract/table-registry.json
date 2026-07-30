@@ -3,31 +3,40 @@
   "kind": "sdkwork.database.table-registry",
   "tables": [
     {
-      "name": "commerce_inventory_stock",
       "owner": "sdkwork-commerce-platform",
       "profile": "tenant_entity",
-      "complianceLevel": "L2",
-      "engine": ["postgres", "sqlite"],
+      "engine": [
+        "postgres"
+      ],
       "migration": "commerce-initial",
-      "referenceOnly": true
+      "referenceOnly": true,
+      "table_name": "commerce_inventory_stock",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
     },
     {
-      "name": "commerce_inventory_reservation",
       "owner": "sdkwork-commerce-platform",
       "profile": "tenant_entity+event_log",
-      "complianceLevel": "L2",
-      "engine": ["postgres", "sqlite"],
+      "engine": [
+        "postgres"
+      ],
       "migration": "commerce-initial",
-      "referenceOnly": true
+      "referenceOnly": true,
+      "table_name": "commerce_inventory_reservation",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
     },
     {
-      "name": "commerce_inventory_movement",
       "owner": "sdkwork-commerce-platform",
       "profile": "event_log",
-      "complianceLevel": "L2",
-      "engine": ["postgres", "sqlite"],
+      "engine": [
+        "postgres"
+      ],
       "migration": "commerce-initial",
-      "referenceOnly": true
+      "referenceOnly": true,
+      "table_name": "commerce_inventory_movement",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
     }
   ]
 }

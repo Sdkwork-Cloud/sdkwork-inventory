@@ -24,3 +24,7 @@ pub fn gateway_route_manifest() -> sdkwork_web_core::HttpRouteManifest {
 pub async fn gateway_mount(host: Arc<InventoryServiceHost>) -> Router {
     build_inventory_app_router_with_framework(host).await
 }
+
+pub fn gateway_mount_business(host: Arc<InventoryServiceHost>) -> Router {
+    routes::build_inventory_app_router(host)
+}
