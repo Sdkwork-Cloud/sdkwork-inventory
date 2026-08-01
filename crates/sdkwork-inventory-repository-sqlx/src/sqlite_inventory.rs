@@ -155,7 +155,7 @@ impl SqliteCommerceInventoryStore {
             count_sql.push_str(" AND status = CAST(? AS TEXT)");
         }
 
-        let mut count_query = sqlx::query(&count_sql)
+        let mut count_query = sqlx::query(sqlx::AssertSqlSafe(count_sql.as_str()))
             .bind(&query.tenant_id)
             .bind(organization_id)
             .bind(organization_id);
@@ -195,7 +195,7 @@ impl SqliteCommerceInventoryStore {
         }
         list_sql.push_str(" ORDER BY updated_at DESC, id DESC LIMIT ? OFFSET ?");
 
-        let mut list_query = sqlx::query(&list_sql)
+        let mut list_query = sqlx::query(sqlx::AssertSqlSafe(list_sql.as_str()))
             .bind(&query.tenant_id)
             .bind(organization_id)
             .bind(organization_id);
@@ -253,7 +253,7 @@ impl SqliteCommerceInventoryStore {
             "UPDATE commerce_inventory_stock SET {} WHERE tenant_id = CAST(? AS TEXT) AND id = CAST(? AS TEXT)",
             sets.join(", ")
         );
-        let mut db_query = sqlx::query(&sql);
+        let mut db_query = sqlx::query(sqlx::AssertSqlSafe(sql.as_str()));
         for value in &values {
             db_query = db_query.bind(value);
         }
@@ -446,7 +446,7 @@ async fn list_paged_rows(
     };
 
     let count_sql = format!("SELECT COUNT(*) AS total FROM {table}{filters}");
-    let mut count_query = sqlx::query(&count_sql)
+    let mut count_query = sqlx::query(sqlx::AssertSqlSafe(count_sql.as_str()))
         .bind(request.tenant_id)
         .bind(organization_id)
         .bind(organization_id);
@@ -468,7 +468,7 @@ async fn list_paged_rows(
     let list_sql = format!(
         "SELECT {select_columns} FROM {table}{filters} ORDER BY {order_by} LIMIT ? OFFSET ?"
     );
-    let mut list_query = sqlx::query(&list_sql)
+    let mut list_query = sqlx::query(sqlx::AssertSqlSafe(list_sql.as_str()))
         .bind(request.tenant_id)
         .bind(organization_id)
         .bind(organization_id);

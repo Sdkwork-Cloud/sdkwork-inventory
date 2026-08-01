@@ -260,7 +260,7 @@ async fn list_simple_page(
     let organization_id = request.organization_id.unwrap_or("");
 
     let count_sql = format!("SELECT COUNT(*) AS total FROM {table} WHERE tenant_id = $1 AND ((organization_id = $2) OR (organization_id IS NULL AND $3 = ''))");
-    let total_row = sqlx::query(&count_sql)
+    let total_row = sqlx::query(sqlx::AssertSqlSafe(count_sql.as_str()))
         .bind(request.tenant_id)
         .bind(organization_id)
         .bind(organization_id)
@@ -272,7 +272,7 @@ async fn list_simple_page(
     let list_sql = format!(
         "SELECT {select_columns} FROM {table} WHERE tenant_id = $1 AND ((organization_id = $2) OR (organization_id IS NULL AND $3 = '')) ORDER BY {order_by} LIMIT $4 OFFSET $5"
     );
-    let rows = sqlx::query(&list_sql)
+    let rows = sqlx::query(sqlx::AssertSqlSafe(list_sql.as_str()))
         .bind(request.tenant_id)
         .bind(organization_id)
         .bind(organization_id)
