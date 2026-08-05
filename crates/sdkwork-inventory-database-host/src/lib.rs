@@ -27,6 +27,14 @@ pub async fn bootstrap_inventory_database_from_env() -> Result<InventoryDatabase
     let pool = create_pool_from_config(config)
         .await
         .map_err(|error| format!("create inventory database pool failed: {error}"))?;
+    bootstrap_inventory_database_with_pool(pool).await
+}
+
+/// Bootstrap inventory assets against a caller-provided database pool so the
+/// platform cloud gateway can share its process-wide PostgreSQL pool.
+pub async fn bootstrap_inventory_database_with_pool(
+    pool: DatabasePool,
+) -> Result<InventoryDatabaseHost, String> {
     let app_root = std::env::var("SDKWORK_INVENTORY_APP_ROOT")
         .map(PathBuf::from)
         .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../.."));

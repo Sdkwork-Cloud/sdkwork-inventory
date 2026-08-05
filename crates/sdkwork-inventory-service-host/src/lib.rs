@@ -19,6 +19,13 @@ impl InventoryServiceHost {
         Ok(Self { database })
     }
 
+    /// Build the inventory service host against a caller-provided database pool so
+    /// the platform cloud gateway can share its process-wide PostgreSQL pool.
+    pub async fn from_pool(pool: DatabasePool) -> Result<Self, String> {
+        let database = sdkwork_inventory_database_host::bootstrap_inventory_database_with_pool(pool).await?;
+        Ok(Self { database })
+    }
+
     pub fn database_pool(&self) -> &DatabasePool {
         self.database.pool()
     }
