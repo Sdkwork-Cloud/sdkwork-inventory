@@ -6,7 +6,7 @@ pub mod web_bootstrap;
 
 pub use app_merchant_inventory_router::{
     app_merchant_inventory_router_with_postgres_pool,
-    app_merchant_inventory_router_with_sqlite_pool, build_app_merchant_inventory_router,
+    build_app_merchant_inventory_router,
     CommerceMerchantInventoryStore,
 };
 pub use http_route_manifest::app_route_manifest;

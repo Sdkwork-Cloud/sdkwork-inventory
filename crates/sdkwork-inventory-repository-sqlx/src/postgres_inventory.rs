@@ -1,10 +1,117 @@
-pub use crate::sqlite_inventory::{
-    BackendInventoryListPage, BackendInventoryMovementListQuery,
-    BackendInventoryReservationListQuery, BackendInventoryStockListQuery,
-    MerchantInventoryListQuery, MerchantInventoryScopeQuery, UpdateBackendInventoryStockCommand,
-};
-
 use sdkwork_contract_service::CommerceServiceError;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct MerchantInventoryScopeQuery {
+    pub tenant_id: String,
+    pub organization_id: Option<String>,
+}
+
+impl MerchantInventoryScopeQuery {
+    pub fn new(
+        tenant_id: &str,
+        organization_id: Option<&str>,
+    ) -> Result<Self, CommerceServiceError> {
+        let tenant_id = tenant_id.trim();
+        if tenant_id.is_empty() {
+            return Err(CommerceServiceError::validation("tenant_id is required"));
+        }
+        let organization_id = organization_id
+            .map(str::trim)
+            .filter(|value| !value.is_empty())
+            .map(str::to_owned);
+        Ok(Self {
+            tenant_id: tenant_id.to_owned(),
+            organization_id,
+        })
+    }
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct MerchantInventoryListQuery {
+    pub tenant_id: String,
+    pub organization_id: Option<String>,
+    pub page: i64,
+    pub page_size: i64,
+}
+
+impl MerchantInventoryListQuery {
+    pub fn new(
+        tenant_id: &str,
+        organization_id: Option<&str>,
+        page: i64,
+        page_size: i64,
+    ) -> Result<Self, CommerceServiceError> {
+        let scope = MerchantInventoryScopeQuery::new(tenant_id, organization_id)?;
+        if page < 1 {
+            return Err(CommerceServiceError::validation(
+                "page must be greater than or equal to 1",
+            ));
+        }
+        if !(1..=200).contains(&page_size) {
+            return Err(CommerceServiceError::validation(
+                "page_size must be between 1 and 200",
+            ));
+        }
+        Ok(Self {
+            tenant_id: scope.tenant_id,
+            organization_id: scope.organization_id,
+            page,
+            page_size,
+        })
+    }
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct BackendInventoryStockListQuery {
+    pub tenant_id: String,
+    pub organization_id: Option<String>,
+    pub sku_id: Option<String>,
+    pub warehouse_id: Option<String>,
+    pub status: Option<String>,
+    pub page: i64,
+    pub page_size: i64,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct UpdateBackendInventoryStockCommand {
+    pub tenant_id: String,
+    pub organization_id: Option<String>,
+    pub stock_id: String,
+    pub available_quantity: Option<i64>,
+    pub safety_stock_quantity: Option<i64>,
+    pub status: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct BackendInventoryReservationListQuery {
+    pub tenant_id: String,
+    pub organization_id: Option<String>,
+    pub order_id: Option<String>,
+    pub sku_id: Option<String>,
+    pub status: Option<String>,
+    pub page: i64,
+    pub page_size: i64,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct BackendInventoryMovementListQuery {
+    pub tenant_id: String,
+    pub organization_id: Option<String>,
+    pub sku_id: Option<String>,
+    pub movement_type: Option<String>,
+    pub page: i64,
+    pub page_size: i64,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BackendInventoryListPage {
+    pub items: Vec<serde_json::Value>,
+    pub page: i64,
+    pub page_size: i64,
+    pub total: i64,
+}
 use sqlx::{PgPool, Row};
 
 #[derive(Debug, Clone)]

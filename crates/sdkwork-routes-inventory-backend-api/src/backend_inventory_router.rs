@@ -7,7 +7,7 @@ use sdkwork_iam_context_service::IamAppContext;
 use sdkwork_inventory_repository_sqlx::{
     BackendInventoryListPage, BackendInventoryMovementListQuery,
     BackendInventoryReservationListQuery, BackendInventoryStockListQuery,
-    PostgresCommerceInventoryStore, SqliteCommerceInventoryStore,
+    PostgresCommerceInventoryStore,
     UpdateBackendInventoryStockCommand,
 };
 use sdkwork_utils_rust::http_api::{
@@ -17,7 +17,7 @@ use sdkwork_web_core::{
     problem_response, ProblemCorrelation, WebFrameworkError, WebFrameworkErrorKind,
 };
 use serde::{Deserialize, Serialize};
-use sqlx::{PgPool, SqlitePool};
+use sqlx::PgPool;
 use std::sync::Arc;
 
 use crate::subject::app_runtime_subject_from_extension;
@@ -87,10 +87,6 @@ struct UpdateStockRequest {
     status: Option<String>,
 }
 
-pub fn backend_inventory_router_with_sqlite_pool(pool: SqlitePool) -> Router {
-    build_backend_inventory_router(Arc::new(SqliteCommerceInventoryStore::new(pool)))
-}
-
 pub fn backend_inventory_router_with_postgres_pool(pool: PgPool) -> Router {
     build_backend_inventory_router(Arc::new(PostgresCommerceInventoryStore::new(pool)))
 }
@@ -116,35 +112,6 @@ pub fn build_backend_inventory_router(store: Arc<dyn CommerceBackendInventorySto
         .with_state(BackendInventoryState { store })
 }
 
-impl CommerceBackendInventoryStore for SqliteCommerceInventoryStore {
-    fn list_stocks<'a>(
-        &'a self,
-        query: BackendInventoryStockListQuery,
-    ) -> CommerceBackendInventoryFuture<'a, BackendInventoryListPage> {
-        Box::pin(async move { self.list_backend_stocks(query).await })
-    }
-
-    fn update_stock<'a>(
-        &'a self,
-        command: UpdateBackendInventoryStockCommand,
-    ) -> CommerceBackendInventoryFuture<'a, serde_json::Value> {
-        Box::pin(async move { self.update_backend_stock(command).await })
-    }
-
-    fn list_reservations<'a>(
-        &'a self,
-        query: BackendInventoryReservationListQuery,
-    ) -> CommerceBackendInventoryFuture<'a, BackendInventoryListPage> {
-        Box::pin(async move { self.list_backend_reservations(query).await })
-    }
-
-    fn list_movements<'a>(
-        &'a self,
-        query: BackendInventoryMovementListQuery,
-    ) -> CommerceBackendInventoryFuture<'a, BackendInventoryListPage> {
-        Box::pin(async move { self.list_backend_movements(query).await })
-    }
-}
 
 impl CommerceBackendInventoryStore for PostgresCommerceInventoryStore {
     fn list_stocks<'a>(

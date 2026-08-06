@@ -7,7 +7,7 @@ use sdkwork_contract_service::CommerceServiceError;
 use sdkwork_iam_context_service::IamAppContext;
 use sdkwork_inventory_repository_sqlx::{
     BackendInventoryListPage, MerchantInventoryListQuery, MerchantInventoryScopeQuery,
-    PostgresCommerceInventoryStore, SqliteCommerceInventoryStore,
+    PostgresCommerceInventoryStore,
 };
 use sdkwork_utils_rust::http_api::{
     validated_offset_list_params, PageInfo, PageMode, SdkWorkApiResponse, SdkWorkPageData,
@@ -17,7 +17,7 @@ use sdkwork_web_core::{
     problem_response, ProblemCorrelation, WebFrameworkError, WebFrameworkErrorKind,
 };
 use serde::{Deserialize, Serialize};
-use sqlx::{PgPool, SqlitePool};
+use sqlx::PgPool;
 use std::sync::Arc;
 
 use crate::subject::app_runtime_subject_from_extension;
@@ -51,10 +51,6 @@ struct MerchantStockListParams {
     page_size: Option<i64>,
 }
 
-pub fn app_merchant_inventory_router_with_sqlite_pool(pool: SqlitePool) -> Router {
-    build_app_merchant_inventory_router(Arc::new(SqliteCommerceInventoryStore::new(pool)))
-}
-
 pub fn app_merchant_inventory_router_with_postgres_pool(pool: PgPool) -> Router {
     build_app_merchant_inventory_router(Arc::new(PostgresCommerceInventoryStore::new(pool)))
 }
@@ -74,26 +70,6 @@ pub fn build_app_merchant_inventory_router(
         .with_state(MerchantInventoryState { store })
 }
 
-impl CommerceMerchantInventoryStore for SqliteCommerceInventoryStore {
-    fn list_merchant_stocks<'a>(
-        &'a self,
-        query: MerchantInventoryListQuery,
-    ) -> CommerceMerchantInventoryFuture<'a, BackendInventoryListPage> {
-        Box::pin(async move { self.list_merchant_stocks(query).await })
-    }
-
-    fn create_merchant_adjustment<'a>(
-        &'a self,
-        scope: MerchantInventoryScopeQuery,
-        stock_id: String,
-        payload: serde_json::Value,
-    ) -> CommerceMerchantInventoryFuture<'a, serde_json::Value> {
-        Box::pin(async move {
-            self.create_merchant_adjustment(scope, &stock_id, payload)
-                .await
-        })
-    }
-}
 
 impl CommerceMerchantInventoryStore for PostgresCommerceInventoryStore {
     fn list_merchant_stocks<'a>(
