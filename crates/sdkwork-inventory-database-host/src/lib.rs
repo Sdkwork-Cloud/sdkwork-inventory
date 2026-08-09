@@ -34,7 +34,16 @@ impl InventoryDatabaseHost {
 pub fn database_module() -> Result<DefaultDatabaseModule, SpiError> {
     let app_root = std::env::var("SDKWORK_INVENTORY_APP_ROOT")
         .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../.."));
+        .unwrap_or_else(|_| {
+            // Canonicalize the CARGO_MANIFEST_DIR + "../.." path so that the
+            // resulting app_root does not contain ".." components. The seed
+            // security validator rejects paths containing ".." as path
+            // traversal.
+            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("../..")
+                .canonicalize()
+                .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../.."))
+        });
     DefaultDatabaseModule::from_app_root(&app_root)
 }
 
