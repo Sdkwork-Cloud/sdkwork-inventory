@@ -9,7 +9,7 @@
 CREATE TABLE IF NOT EXISTS commerce_inventory_stock (
     id TEXT NOT NULL PRIMARY KEY,
     tenant_id TEXT NOT NULL,
-    organization_id TEXT,
+    organization_id TEXT NOT NULL DEFAULT '0',
     shop_id TEXT,
     sku_id TEXT,
     warehouse_id TEXT,
