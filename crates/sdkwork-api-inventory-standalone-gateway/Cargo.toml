@@ -17,6 +17,3 @@ tower-http = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 sdkwork-web-bootstrap.workspace = true
-sdkwork-routes-inventory-app-api.workspace = true
-sdkwork-routes-inventory-backend-api.workspace = true
-sdkwork-inventory-service-host.workspace = true
