@@ -45,6 +45,7 @@
     "publicExports": [
       "sdkwork_api_inventory_assembly::assemble_api_router",
       "sdkwork_api_inventory_assembly::assemble_api_router_from_env",
+      "sdkwork_api_inventory_assembly::assemble_api_router_runtime",
       "sdkwork_api_inventory_assembly::assemble_app_api_contribution",
       "sdkwork_api_inventory_assembly::assemble_app_api_contribution_from_env",
       "sdkwork_api_inventory_assembly::assemble_backend_api_contribution",
@@ -54,6 +55,8 @@
     "runtimeEntrypoints": [
       "sdkwork_api_inventory_assembly::assemble_api_router",
       "sdkwork_api_inventory_assembly::assemble_api_router_from_env",
+      "sdkwork_api_inventory_assembly::assemble_api_router_runtime",
+      "sdkwork_api_inventory_assembly::assemble_api_router_with_pool",
       "sdkwork_api_inventory_assembly::assemble_app_api_contribution_from_env",
       "sdkwork_api_inventory_assembly::assemble_backend_api_contribution_from_env"
     ],

@@ -11,9 +11,9 @@ pub use bootstrap::{
     ApiAssembly, ApiAssemblyContext,
 };
 pub use environment::{
-    assemble_api_router_with_pool,
-    assemble_api_router_from_env, assemble_app_api_contribution_from_env,
-    assemble_backend_api_contribution_from_env,
+    assemble_api_router_from_env, assemble_api_router_runtime, assemble_api_router_with_pool,
+    assemble_app_api_contribution_from_env, assemble_backend_api_contribution_from_env,
+    ApiAssemblyRuntime,
 };
 
 pub fn assembly_route_count() -> usize {
