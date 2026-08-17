@@ -1,6 +1,6 @@
 {
   "name": "@sdkwork/inventory-app-sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "SDKWork Inventory App API composed consumer SDK.",
   "type": "module",
   "private": false,
@@ -15,7 +15,7 @@
     }
   },
   "dependencies": {
-    "@sdkwork/sdk-common": "workspace:*"
+    "@sdkwork/sdk-common": "^1.0.5"
   },
   "files": [
     "src",
