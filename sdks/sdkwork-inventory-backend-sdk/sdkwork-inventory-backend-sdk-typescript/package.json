@@ -1,6 +1,6 @@
 {
   "name": "@sdkwork/inventory-backend-sdk",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "SDKWork Inventory Backend API composed consumer SDK.",
   "type": "module",
   "private": false,
