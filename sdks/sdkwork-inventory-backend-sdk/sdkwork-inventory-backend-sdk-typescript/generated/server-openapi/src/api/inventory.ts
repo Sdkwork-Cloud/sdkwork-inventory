@@ -1,5 +1,5 @@
 import { backendApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { InventoryMovement, InventoryReservation, InventoryStock, PageInfo, UpdateInventoryStockRequest } from '../types';
 
@@ -20,14 +20,14 @@ export class InventoryMovementsApi {
 
 
 /** List inventory movements. */
-  async list(params?: InventoryMovementsListParams): Promise<Record<string, unknown>> {
+  async list(params?: InventoryMovementsListParams, requestOptions?: ApiRequestOptions): Promise<{ items: InventoryMovement[]; pageInfo: PageInfo; }> {
     const query = buildQueryString([
       { name: 'sku_id', value: params?.skuId, style: 'form', explode: true, allowReserved: false },
       { name: 'movement_type', value: params?.movementType, style: 'form', explode: true, allowReserved: false },
       { name: 'page', value: params?.page, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<Record<string, unknown>>(appendQueryString(backendApiPath(`/inventory/movements`), query));
+    return this.client.request<{ items: InventoryMovement[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/inventory/movements`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -48,7 +48,7 @@ export class InventoryReservationsApi {
 
 
 /** List inventory reservations. */
-  async list(params?: InventoryReservationsListParams): Promise<Record<string, unknown>> {
+  async list(params?: InventoryReservationsListParams, requestOptions?: ApiRequestOptions): Promise<{ items: InventoryReservation[]; pageInfo: PageInfo; }> {
     const query = buildQueryString([
       { name: 'order_id', value: params?.orderId, style: 'form', explode: true, allowReserved: false },
       { name: 'sku_id', value: params?.skuId, style: 'form', explode: true, allowReserved: false },
@@ -56,7 +56,7 @@ export class InventoryReservationsApi {
       { name: 'page', value: params?.page, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<Record<string, unknown>>(appendQueryString(backendApiPath(`/inventory/reservations`), query));
+    return this.client.request<{ items: InventoryReservation[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/inventory/reservations`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
@@ -77,7 +77,7 @@ export class InventoryStocksApi {
 
 
 /** List inventory stocks for operators. */
-  async list(params?: InventoryStocksListParams): Promise<Record<string, unknown>> {
+  async list(params?: InventoryStocksListParams, requestOptions?: ApiRequestOptions): Promise<{ items: InventoryStock[]; pageInfo: PageInfo; }> {
     const query = buildQueryString([
       { name: 'sku_id', value: params?.skuId, style: 'form', explode: true, allowReserved: false },
       { name: 'warehouse_id', value: params?.warehouseId, style: 'form', explode: true, allowReserved: false },
@@ -85,23 +85,21 @@ export class InventoryStocksApi {
       { name: 'page', value: params?.page, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<Record<string, unknown>>(appendQueryString(backendApiPath(`/inventory/stocks`), query));
+    return this.client.request<{ items: InventoryStock[]; pageInfo: PageInfo; }>(appendQueryString(backendApiPath(`/inventory/stocks`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** Update an inventory stock record. */
-  async update(stockId: string, body: UpdateInventoryStockRequest): Promise<InventoryStock> {
-    return this.client.patch<InventoryStock>(backendApiPath(`/inventory/stocks/${serializePathParameter(stockId, { name: 'stockId', style: 'simple', explode: false })}`), body, undefined, undefined, 'application/json');
+  async update(stockId: string, body: UpdateInventoryStockRequest, requestOptions?: ApiRequestOptions): Promise<InventoryStock> {
+    return this.client.request<InventoryStock>(backendApiPath(`/inventory/stocks/${serializePathParameter(stockId, { name: 'stockId', style: 'simple', explode: false })}`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class InventoryApi {
-  private client: HttpClient;
   public readonly stocks: InventoryStocksApi;
   public readonly reservations: InventoryReservationsApi;
   public readonly movements: InventoryMovementsApi;
 
   constructor(client: HttpClient) {
-    this.client = client;
     this.stocks = new InventoryStocksApi(client);
     this.reservations = new InventoryReservationsApi(client);
     this.movements = new InventoryMovementsApi(client);

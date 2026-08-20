@@ -3,6 +3,6 @@ import type { PageInfo } from './page-info';
 
 export interface InventoryStockPageResponse {
   code: 0;
-  data: Record<string, unknown>;
+  data: { items: InventoryStock[]; pageInfo: PageInfo; };
   traceId: string;
 }

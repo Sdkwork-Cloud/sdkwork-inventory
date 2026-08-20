@@ -1,5 +1,5 @@
 import { appApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { CreateInventoryAdjustmentRequest, InventoryStock, PageInfo } from '../types';
 
@@ -13,8 +13,8 @@ export class InventoryStocksAdjustmentsApi {
 
 
 /** Create an inventory stock adjustment for the current shop. */
-  async create(stockId: string, body: CreateInventoryAdjustmentRequest): Promise<InventoryStock> {
-    return this.client.post<InventoryStock>(appApiPath(`/shops/current/inventory/stocks/${serializePathParameter(stockId, { name: 'stockId', style: 'simple', explode: false })}/adjustments`), body, undefined, undefined, 'application/json');
+  async create(stockId: string, body: CreateInventoryAdjustmentRequest, requestOptions?: ApiRequestOptions): Promise<InventoryStock> {
+    return this.client.request<InventoryStock>(appApiPath(`/shops/current/inventory/stocks/${serializePathParameter(stockId, { name: 'stockId', style: 'simple', explode: false })}/adjustments`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -34,21 +34,19 @@ export class InventoryStocksApi {
 
 
 /** List the current shop inventory stocks. */
-  async list(params?: InventoryStocksListParams): Promise<Record<string, unknown>> {
+  async list(params?: InventoryStocksListParams, requestOptions?: ApiRequestOptions): Promise<{ items: InventoryStock[]; pageInfo: PageInfo; }> {
     const query = buildQueryString([
       { name: 'page', value: params?.page, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<Record<string, unknown>>(appendQueryString(appApiPath(`/shops/current/inventory/stocks`), query));
+    return this.client.request<{ items: InventoryStock[]; pageInfo: PageInfo; }>(appendQueryString(appApiPath(`/shops/current/inventory/stocks`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
 
 export class InventoryApi {
-  private client: HttpClient;
   public readonly stocks: InventoryStocksApi;
 
   constructor(client: HttpClient) {
-    this.client = client;
     this.stocks = new InventoryStocksApi(client);
   }
 
