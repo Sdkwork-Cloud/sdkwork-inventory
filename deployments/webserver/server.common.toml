@@ -1,0 +1,5 @@
+specVersion = 1
+kind = "sdkwork.webserver.server"
+id = "inventory"
+enabled = false
+description = "sdkwork-inventory webserver placeholder (align-application-deploy-layout)"
